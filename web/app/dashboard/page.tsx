@@ -235,18 +235,23 @@ export default async function DashboardPage() {
                     const passed = gatePassed(data, g.id);
                     const current = data.current_gate === g.id;
                     const t = timings[g.id];
+                    const targetId = `g${g.id[1]}`;
+                    const reachable = passed || current;
                     return (
-                      <li
-                        key={g.id}
-                        className={
-                          "relative flex-1 rounded px-2 py-1.5 text-center ring-1 " +
-                          (current
-                            ? "bg-purple-500/15 text-purple-200 ring-purple-400/60 shadow-[0_0_12px_-2px_rgba(168,85,247,0.6)]"
-                            : passed
-                            ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30"
-                            : "bg-neutral-900 text-neutral-500 ring-neutral-800")
-                        }
-                      >
+                      <li key={g.id} className="contents">
+                        <a
+                          href={reachable ? `#${targetId}` : undefined}
+                          aria-disabled={!reachable}
+                          title={reachable ? `Jump to ${g.label} artifact` : `${g.label} not produced yet`}
+                          className={
+                            "relative flex-1 rounded px-2 py-1.5 text-center ring-1 transition " +
+                            (current
+                              ? "bg-purple-500/15 text-purple-200 ring-purple-400/60 shadow-[0_0_12px_-2px_rgba(168,85,247,0.6)] hover:bg-purple-500/25"
+                              : passed
+                              ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30 hover:bg-emerald-500/20"
+                              : "bg-neutral-900 text-neutral-500 ring-neutral-800 cursor-not-allowed")
+                          }
+                        >
                         {current && (
                           <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-purple-300 shadow-[0_0_6px_#d8b4fe] animate-pulse" />
                         )}
@@ -276,6 +281,7 @@ export default async function DashboardPage() {
                             </span>
                           )}
                         </div>
+                        </a>
                       </li>
                     );
                   })}
@@ -314,20 +320,20 @@ export default async function DashboardPage() {
 
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                   {data.charter && (
-                    <Card title="G1 · Charter" subtitle={data.charter.title}>
+                    <Card id="g1" title="G1 · Charter" subtitle={data.charter.title}>
                       {data.charter.problem && <P label="problem">{data.charter.problem}</P>}
                       {data.charter.target_user && <P label="user">{data.charter.target_user}</P>}
                       <Bullets label="success metrics" items={data.charter.success_metrics} />
                     </Card>
                   )}
                   {data.plan && (
-                    <Card title="G2 · Plan" subtitle={data.plan.title}>
+                    <Card id="g2" title="G2 · Plan" subtitle={data.plan.title}>
                       <Bullets label="milestones" items={data.plan.milestones} />
                       <Bullets label="risks" items={data.plan.risks} tone="danger" />
                     </Card>
                   )}
                   {data.design && (
-                    <Card title="G3 · Design" subtitle={data.design.feature}>
+                    <Card id="g3" title="G3 · Design" subtitle={data.design.feature}>
                       <Bullets
                         label="information architecture"
                         items={data.design.information_architecture}
@@ -338,7 +344,7 @@ export default async function DashboardPage() {
                     </Card>
                   )}
                   {data.review && (
-                    <Card title="G4 · Build" subtitle={data.review.summary}>
+                    <Card id="g4" title="G4 · Build" subtitle={data.review.summary}>
                       <Bullets label="passed checks" items={data.review.passed_checks} tone="ok" />
                       <Bullets
                         label="outstanding risks"
@@ -349,6 +355,7 @@ export default async function DashboardPage() {
                   )}
                   {data.launch && (
                     <Card
+                      id="g5"
                       title="G5 · Launch"
                       subtitle={data.launch.feature}
                       badge={data.launch.dry_run ? "dry-run" : "live"}
@@ -453,14 +460,19 @@ function Card({
   subtitle,
   badge,
   children,
+  id,
 }: {
   title: string;
   subtitle?: string;
   badge?: string;
   children: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-800/80 bg-neutral-900/50 p-4">
+    <div
+      id={id}
+      className="rounded-lg border border-neutral-800/80 bg-neutral-900/50 p-4 target:ring-2 target:ring-purple-400/60 target:shadow-[0_0_20px_-4px_rgba(168,85,247,0.5)] transition scroll-mt-20"
+    >
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-semibold uppercase tracking-widest text-purple-300">
           {title}
