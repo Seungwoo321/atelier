@@ -152,11 +152,19 @@ The `web/` directory ships a Next.js 16 + React 19 dashboard with a PixiJS-rende
 
 ```bash
 cd web
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
-Open <http://localhost:3000>. The landing page is at `/`, the live office at `/office`.
+Open <http://localhost:3000>. The landing page is at `/`, the live office at `/office`, and the run summary at `/dashboard`.
+
+Want the office and dashboard populated before your first real run? Seed a sample run:
+
+```bash
+python scripts/seed_demo.py
+```
+
+This writes `artifacts/atelier-demo/` (5 typed gate outputs) and `runs/events.jsonl` (16 events covering G1 → G5). Both directories are git-ignored as runtime state.
 
 ## Claude Code Plugin
 

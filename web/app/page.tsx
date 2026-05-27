@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const FEATURES = [
@@ -27,7 +28,7 @@ const FEATURES = [
   },
 ];
 
-const GATES = [
+const GATES: ReadonlyArray<readonly [string, string, string]> = [
   ["G1", "Charter", "Chief of Staff"],
   ["G2", "Plan", "PM Lead + Eng Manager"],
   ["G3", "Design", "Design Lead + PM"],
@@ -35,82 +36,173 @@ const GATES = [
   ["G5", "Launch", "Mkt + Ops + Analytics"],
 ];
 
+const STATS: ReadonlyArray<readonly [string, string]> = [
+  ["28", "role-specialized agents"],
+  ["9", "departments with one lead each"],
+  ["5", "strategic gates · G1 → G5"],
+  ["4", "verification stages per gate"],
+];
+
 export default function Home() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-16">
-      <header className="mb-16">
-        <p className="text-sm uppercase tracking-widest text-purple-400">
-          Atelier · v1.0
-        </p>
-        <h1 className="mt-4 text-5xl font-bold leading-tight">
-          A virtual company of <br />
-          role-specialized agents.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-neutral-300">
-          Drop a request. Watch 28 roles across 9 departments collaborate
-          through 5 strategic gates. Ship typed artifacts on every run.
-        </p>
-        <div className="mt-8 flex gap-3">
-          <Link
-            href="/office"
-            className="rounded-md bg-purple-500 px-5 py-3 font-medium hover:bg-purple-400"
-          >
-            Enter the office →
-          </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-neutral-700 px-5 py-3 font-medium hover:bg-neutral-900"
-          >
-            Open dashboard
-          </Link>
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <header className="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-purple-300 ring-1 ring-purple-400/30">
+            <span className="h-1.5 w-1.5 rounded-full bg-purple-300 shadow-[0_0_8px_#d8b4fe] animate-pulse" />
+            Atelier · v1.0
+          </div>
+          <h1 className="mt-5 text-5xl font-bold leading-[1.05] tracking-tight">
+            A virtual company of <br />
+            <span className="bg-gradient-to-br from-amber-200 via-purple-200 to-purple-400 bg-clip-text text-transparent">
+              role-specialized agents.
+            </span>
+          </h1>
+          <p className="mt-6 max-w-xl text-lg text-neutral-300">
+            Drop a request. Watch 28 roles across 9 departments collaborate through 5
+            strategic gates. Ship typed artifacts on every run.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/office"
+              className="rounded-md bg-purple-500 px-5 py-3 font-medium text-white shadow-[0_6px_20px_-6px_rgba(168,85,247,0.55)] hover:bg-purple-400"
+            >
+              Enter the office →
+            </Link>
+            <Link
+              href="/dashboard"
+              className="rounded-md border border-neutral-700 px-5 py-3 font-medium hover:bg-neutral-900"
+            >
+              Open dashboard
+            </Link>
+          </div>
+          <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            {STATS.map(([num, label]) => (
+              <div key={label}>
+                <dt className="text-3xl font-semibold tabular-nums text-amber-200">{num}</dt>
+                <dd className="mt-1 text-[11px] uppercase tracking-widest text-neutral-500">
+                  {label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="relative">
+          <div className="absolute -inset-6 -z-10 rounded-3xl bg-gradient-to-br from-purple-500/20 via-amber-400/10 to-transparent blur-2xl" />
+          <div className="overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 shadow-[0_25px_60px_-30px_rgba(168,85,247,0.4)]">
+            <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-2 text-[11px] font-mono text-neutral-500">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-rose-400/70" />
+                <span className="h-2 w-2 rounded-full bg-amber-300/70" />
+                <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
+                <span className="ml-2">atelier://office</span>
+              </div>
+              <span className="text-emerald-300/80">live</span>
+            </div>
+            <Image
+              src="/office-bg.png"
+              alt="Office preview"
+              width={960}
+              height={540}
+              className="block w-full"
+              priority
+            />
+          </div>
+          <p className="mt-3 text-center text-[11px] text-neutral-500">
+            PixiJS · Modern Interiors sprites · animated by SSE events
+          </p>
         </div>
       </header>
 
-      <section className="mb-16">
-        <h2 className="mb-6 text-2xl font-semibold">The 5 gates</h2>
-        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-5">
-          {GATES.map(([id, name, owner]) => (
+      <section className="mt-20">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-2xl font-semibold">The 5 gates</h2>
+          <span className="text-xs text-neutral-500">G1 → G5 · typed Pydantic outputs</span>
+        </div>
+        <ol className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-5">
+          {GATES.map(([id, name, owner], i) => (
             <li
               key={id}
-              className="rounded-lg border border-neutral-800 bg-neutral-950 p-4"
+              className="relative rounded-lg border border-neutral-800 bg-neutral-950 p-4"
             >
-              <div className="text-xs text-purple-400">{id}</div>
-              <div className="mt-1 font-semibold">{name}</div>
-              <div className="mt-2 text-xs text-neutral-400">{owner}</div>
+              <div className="flex items-center gap-2 text-xs text-purple-400">
+                <span className="rounded bg-purple-500/15 px-1.5 py-0.5 font-mono ring-1 ring-purple-500/30">
+                  {id}
+                </span>
+                {i < GATES.length - 1 && (
+                  <span className="ml-auto text-neutral-600">→</span>
+                )}
+              </div>
+              <div className="mt-2 font-semibold">{name}</div>
+              <div className="mt-1 text-xs text-neutral-400">{owner}</div>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="mb-16">
-        <h2 className="mb-6 text-2xl font-semibold">What it does</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold">What it does</h2>
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => (
             <div
               key={f.title}
-              className="rounded-lg border border-neutral-800 bg-neutral-950 p-5"
+              className="group rounded-lg border border-neutral-800 bg-neutral-950 p-5 transition hover:border-purple-500/40 hover:bg-neutral-900/50"
             >
-              <h3 className="font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm text-neutral-300">{f.body}</p>
+              <h3 className="font-semibold text-neutral-100">{f.title}</h3>
+              <p className="mt-2 text-sm text-neutral-400 group-hover:text-neutral-300">
+                {f.body}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mb-16">
-        <h2 className="mb-4 text-2xl font-semibold">Get started</h2>
-        <pre className="overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-5 text-sm">
-{`git clone https://github.com/Seungwoo321/atelier.git
-cd atelier
-uv venv && source .venv/bin/activate
-uv pip install -e ".[dev]"
-atelier auth login
-atelier start "weekly retrospective CLI for solo developers"`}
+      <section className="mt-20">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-2xl font-semibold">Get started</h2>
+          <span className="text-xs text-neutral-500">
+            pnpm for <code className="rounded bg-neutral-900 px-1 py-0.5">web/</code> · uv for Python
+          </span>
+        </div>
+        <pre className="mt-5 overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-5 text-sm leading-relaxed">
+          <code>
+            <span className="text-neutral-500"># clone &amp; bootstrap</span>
+            {"\n"}
+            git clone https://github.com/Seungwoo321/atelier.git
+            {"\n"}
+            cd atelier
+            {"\n"}
+            uv venv && source .venv/bin/activate
+            {"\n"}
+            uv pip install -e &quot;.[dev]&quot;
+            {"\n"}
+            {"\n"}
+            <span className="text-neutral-500"># run the company on a request</span>
+            {"\n"}
+            atelier auth login
+            {"\n"}
+            atelier start &quot;weekly retrospective CLI for solo developers&quot;
+            {"\n"}
+            {"\n"}
+            <span className="text-neutral-500"># open the live office</span>
+            {"\n"}
+            cd web && pnpm install && pnpm dev
+          </code>
         </pre>
       </section>
 
-      <footer className="mt-24 border-t border-neutral-800 pt-6 text-sm text-neutral-500">
-        Sprites © LimeZu — Modern Interiors (free, non-commercial).
+      <footer className="mt-24 flex items-center justify-between border-t border-neutral-800 pt-6 text-sm text-neutral-500">
+        <span>Sprites © LimeZu — Modern Interiors (free, non-commercial).</span>
+        <span>
+          <Link href="/office" className="hover:text-white">
+            office
+          </Link>{" "}
+          ·{" "}
+          <Link href="/dashboard" className="hover:text-white">
+            dashboard
+          </Link>
+        </span>
       </footer>
     </main>
   );

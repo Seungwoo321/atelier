@@ -1,6 +1,7 @@
 # Rule: Web stack baseline
 
-The `web/` directory is locked to:
+The `web/` directory uses **pnpm** as the package manager. Do not use npm or
+yarn. The web/ directory is locked to:
 
 - **React 19**
 - **Next.js 16** (App Router, server components by default)
