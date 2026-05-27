@@ -106,11 +106,42 @@ function quotaTotal(events: EventRow[]): number {
   return events.reduce((s, e) => s + (typeof e.frac === "number" ? e.frac : 0), 0);
 }
 
+function quotaByDept(events: EventRow[]): Array<{ dept: string; frac: number }> {
+  const by: Record<string, number> = {};
+  for (const e of events) {
+    if (typeof e.frac === "number" && typeof e.dept === "string") {
+      by[e.dept] = (by[e.dept] ?? 0) + e.frac;
+    }
+  }
+  return Object.entries(by)
+    .map(([dept, frac]) => ({ dept, frac }))
+    .sort((a, b) => b.frac - a.frac);
+}
+
+function gateTimings(events: EventRow[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  const buckets: Record<string, Date[]> = { G1: [], G2: [], G3: [], G4: [], G5: [] };
+  for (const e of events) {
+    const m = /^g([1-5])\./.exec(e.event);
+    if (m) buckets[`G${m[1]}`].push(new Date(e.ts));
+  }
+  for (const [g, dates] of Object.entries(buckets)) {
+    if (dates.length === 0) continue;
+    const lo = Math.min(...dates.map((d) => d.getTime()));
+    const hi = Math.max(...dates.map((d) => d.getTime()));
+    const secs = Math.max(1, Math.round((hi - lo) / 1000));
+    out[g] = secs >= 60 ? `${Math.round(secs / 60)}m` : `${secs}s`;
+  }
+  return out;
+}
+
 export default async function DashboardPage() {
   const [results, events] = await Promise.all([loadResults(), loadEvents()]);
   const recent = events.slice(-12).reverse();
   const quota = quotaTotal(events);
   const quotaPct = Math.min(100, Math.round((quota / 0.2) * 100));
+  const deptQuota = quotaByDept(events);
+  const timings = gateTimings(events);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -156,9 +187,10 @@ export default async function DashboardPage() {
                   </span>
                 </header>
 
-                <ol className="mt-5 flex items-center gap-1.5 text-[11px] font-mono">
+                <ol className="mt-5 flex items-stretch gap-1.5 text-[11px] font-mono">
                   {GATES.map((g) => {
                     const passed = gatePassed(data, g.id);
+                    const t = timings[g.id];
                     return (
                       <li
                         key={g.id}
@@ -169,7 +201,12 @@ export default async function DashboardPage() {
                             : "bg-neutral-900 text-neutral-500 ring-neutral-800")
                         }
                       >
-                        <span className="opacity-70">{g.id}</span> · {g.label}
+                        <div>
+                          <span className="opacity-70">{g.id}</span> · {g.label}
+                        </div>
+                        {t && (
+                          <div className="mt-0.5 text-[10px] text-emerald-200/80">{t}</div>
+                        )}
                       </li>
                     );
                   })}
@@ -249,6 +286,27 @@ export default async function DashboardPage() {
             <p className="mt-2 text-[11px] text-neutral-500">
               Accounted as fraction of the Claude subscription, not USD.
             </p>
+            {deptQuota.length > 0 && (
+              <ul className="mt-3 space-y-1.5 text-[11px]">
+                {deptQuota.map((d) => {
+                  const w = Math.min(100, Math.round((d.frac / Math.max(0.001, deptQuota[0].frac)) * 100));
+                  return (
+                    <li key={d.dept} className="flex items-center gap-2">
+                      <span className="w-20 truncate text-neutral-400">{d.dept}</span>
+                      <span className="relative h-1 flex-1 overflow-hidden rounded-full bg-neutral-900">
+                        <span
+                          className="absolute inset-y-0 left-0 bg-amber-300/70"
+                          style={{ width: `${w}%` }}
+                        />
+                      </span>
+                      <span className="w-10 text-right font-mono text-neutral-500 tabular-nums">
+                        {(d.frac * 100).toFixed(1)}%
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">

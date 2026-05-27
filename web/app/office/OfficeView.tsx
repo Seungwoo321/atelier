@@ -123,8 +123,29 @@ export default function OfficeView() {
 
   const recent = useMemo(() => events.slice(-12).reverse(), [events]);
 
+  const activity = useMemo(() => {
+    const map: Record<string, { kind: string; ts: string }> = {};
+    for (const e of events) {
+      if (typeof e.dept === "string") {
+        map[e.dept] = { kind: e.event as string, ts: e.ts as string };
+      }
+    }
+    return map;
+  }, [events]);
+
+  const councilCount = useMemo(
+    () =>
+      new Set(
+        events
+          .slice(-12)
+          .map((e) => (typeof e.dept === "string" ? e.dept : null))
+          .filter(Boolean),
+      ).size,
+    [events],
+  );
+
   return (
-    <div className="grid grid-cols-[1fr_280px] gap-3">
+    <div className="grid grid-cols-[1fr_280px] gap-3 items-start">
       <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 relative">
         <div ref={stageRef} />
         <div className="pointer-events-none absolute inset-0">
@@ -139,30 +160,61 @@ export default function OfficeView() {
               <span className="text-neutral-200">00%</span>
             </div>
           </div>
-          {LEADS.map((l) => (
-            <div
-              key={l.dept}
-              className="absolute text-[10px] leading-tight font-medium text-center"
-              style={{ left: l.x - 28, top: l.y + 108, width: 120 }}
-            >
-              <div className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 ring-1 ring-amber-400/50 px-2 py-0.5 text-amber-200 backdrop-blur-sm shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-                <span className="h-1 w-1 rounded-full bg-emerald-400" />
-                {l.dept}
+          {LEADS.map((l) => {
+            const act = activity[l.dept];
+            const busy = !!act;
+            return (
+              <div
+                key={l.dept}
+                className="absolute text-[10px] leading-tight font-medium text-center"
+                style={{ left: l.x - 28, top: l.y + 108, width: 120 }}
+              >
+                <div
+                  className={
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 backdrop-blur-sm shadow-[0_2px_6px_rgba(0,0,0,0.5)] " +
+                    (busy
+                      ? "bg-emerald-500/15 ring-1 ring-emerald-400/60 text-emerald-200"
+                      : "bg-amber-500/15 ring-1 ring-amber-400/50 text-amber-200")
+                  }
+                >
+                  <span
+                    className={
+                      "h-1.5 w-1.5 rounded-full " +
+                      (busy ? "bg-emerald-300 animate-pulse shadow-[0_0_6px_#34d399]" : "bg-amber-300")
+                    }
+                  />
+                  {l.dept}
+                </div>
+                <div className="mt-0.5 rounded-sm bg-black/75 px-1.5 py-0.5 text-neutral-100 ring-1 ring-white/10">
+                  {l.name}
+                </div>
               </div>
-              <div className="mt-0.5 rounded-sm bg-black/75 px-1.5 py-0.5 text-neutral-100 ring-1 ring-white/10">
-                {l.name}
+            );
+          })}
+          {councilCount >= 2 && (
+            <div
+              className="absolute rounded-md bg-cyan-500/15 ring-1 ring-cyan-400/40 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-cyan-100 shadow-[0_2px_8px_rgba(34,211,238,0.25)]"
+              style={{ right: 80, top: 90, maxWidth: 220 }}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                <span className="font-semibold uppercase tracking-widest">Cross-Dept Council</span>
+              </div>
+              <div className="mt-0.5 text-cyan-200/80 whitespace-nowrap">
+                {councilCount} departments active
               </div>
             </div>
-          ))}
+          )}
         </div>
         <div className="border-t border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-neutral-400">
           events received: <span className="text-neutral-200">{events.length}</span>
         </div>
       </div>
 
-      <aside className="rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col">
-        <div className="px-3 py-2 border-b border-neutral-800 text-xs font-semibold text-neutral-300">
-          live event log
+      <aside className="rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col" style={{ maxHeight: 590 }}>
+        <div className="px-3 py-2 border-b border-neutral-800 text-xs font-semibold text-neutral-300 flex items-center justify-between">
+          <span>live event log</span>
+          <span className="text-[10px] font-mono text-neutral-500">{events.length} total</span>
         </div>
         <div className="flex-1 overflow-auto p-2 space-y-1.5 text-[11px] font-mono">
           {recent.length === 0 ? (
