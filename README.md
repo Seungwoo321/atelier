@@ -11,7 +11,7 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 
 </div>
 
-![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r6c-office.png)
+![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r9-office.png)
 
 ---
 
@@ -36,7 +36,7 @@ All callers depend on a single `LLMProvider` Protocol — these two are the only
 - **Subscription-quota budget** — fraction-based accounting (`QuotaGuard`), not USD per token.
 - **MCP tool registry** — 13 servers mapped to departments out of the box.
 - **Optional integrations** — Langfuse tracing, Temporal durable workflows, E2B sandboxed code execution.
-- **Web dashboard** — Next.js 16 + React 19, with a PixiJS office view rendered on Modern Interiors sprites.
+- **Web dashboard** — Next.js 16 + React 19, with a PixiJS office view rendered on Modern Interiors sprites; click any dept lead to filter the live event log.
 - **Claude Code plugin** — slash commands for gate approval inside Claude Code.
 
 ## Installation
@@ -166,9 +166,9 @@ Open <http://localhost:3000>. The landing page is at `/`, the live office at `/o
 
 | Route | Preview |
 | --- | --- |
-| `/` — landing | ![](docs/r7-landing.png) |
-| `/office` — live office | ![](docs/r6c-office.png) |
-| `/dashboard` — run summary | ![](docs/r6c-dashboard.png) |
+| `/` — landing | ![](docs/r9-landing.png) |
+| `/office` — live office | ![](docs/r9-office.png) |
+| `/dashboard` — run summary | ![](docs/r9-dashboard.png) |
 
 
 Want the office and dashboard populated before your first real run? Seed a sample run:
