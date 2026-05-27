@@ -46,6 +46,9 @@ export default function OfficeView() {
         antialias: false,
       });
       if (destroyed) return;
+      app.canvas.style.maxWidth = "100%";
+      app.canvas.style.height = "auto";
+      app.canvas.style.display = "block";
       host.appendChild(app.canvas);
 
       const roomTex = await Assets.load("/office-bg.png");
@@ -145,17 +148,17 @@ export default function OfficeView() {
   );
 
   return (
-    <div className="grid grid-cols-[1fr_280px] gap-3 items-start">
+    <div className="grid grid-cols-1 gap-3 items-start lg:grid-cols-[1fr_280px]">
       <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 relative">
-        <div ref={stageRef} />
-        <div className="pointer-events-none absolute inset-0">
+        <div ref={stageRef} style={{ aspectRatio: "960 / 540" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ aspectRatio: "960 / 540" }}>
           <div className="absolute left-3 right-3 top-2 flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
               <span className="font-mono text-emerald-300/90">atelier://office</span>
               <span className="text-neutral-500">· 9 leads on duty</span>
             </div>
-            <div className="font-mono text-neutral-400">
+            <div className="hidden sm:block font-mono text-neutral-400">
               gate: <span className="text-amber-300">idle</span> · quota:{" "}
               <span className="text-neutral-200">00%</span>
             </div>
@@ -166,8 +169,12 @@ export default function OfficeView() {
             return (
               <div
                 key={l.dept}
-                className="absolute text-[10px] leading-tight font-medium text-center"
-                style={{ left: l.x - 28, top: l.y + 108, width: 120 }}
+                className="absolute hidden md:block text-[10px] leading-tight font-medium text-center"
+                style={{
+                  left: `${((l.x - 28) / 960) * 100}%`,
+                  top: `${((l.y + 108) / 540) * 100}%`,
+                  width: `${(120 / 960) * 100}%`,
+                }}
               >
                 <div
                   className={
@@ -193,8 +200,12 @@ export default function OfficeView() {
           })}
           {councilCount >= 2 && (
             <div
-              className="absolute rounded-md bg-cyan-500/15 ring-1 ring-cyan-400/40 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-cyan-100 shadow-[0_2px_8px_rgba(34,211,238,0.25)]"
-              style={{ right: 80, top: 90, maxWidth: 220 }}
+              className="absolute hidden md:block rounded-md bg-cyan-500/15 ring-1 ring-cyan-400/40 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-cyan-100 shadow-[0_2px_8px_rgba(34,211,238,0.25)]"
+              style={{
+                right: `${(80 / 960) * 100}%`,
+                top: `${(90 / 540) * 100}%`,
+                maxWidth: 220,
+              }}
             >
               <div className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
