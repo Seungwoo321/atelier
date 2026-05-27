@@ -33,5 +33,13 @@ runs/
 *.sqlite
 *.sqlite-journal
 
+# Node / Next.js
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
 # OS
 .DS_Store

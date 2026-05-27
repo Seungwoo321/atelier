@@ -1,6 +1,6 @@
 """QuotaGuard — subscription quota cap enforcement (Phase A: dry-run accounting).
 
-Cost model is *quota fraction*, not USD (see 02-decisions.md#D10).
+Cost model is *quota fraction*, not USD.
 """
 
 from __future__ import annotations

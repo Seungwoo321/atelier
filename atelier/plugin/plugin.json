@@ -1,0 +1,22 @@
+{
+  "name": "atelier",
+  "version": "1.0.0",
+  "description": "Virtual company of role-specialized agents",
+  "commands": [
+    {
+      "name": "atelier-start",
+      "summary": "Run a full G1-G5 company cycle",
+      "file": "../../.claude/commands/atelier-start.md"
+    },
+    {
+      "name": "atelier-approve",
+      "summary": "Approve a queued gate card",
+      "file": "../../.claude/commands/atelier-approve.md"
+    },
+    {
+      "name": "atelier-status",
+      "summary": "Report provider readiness",
+      "file": "../../.claude/commands/atelier-status.md"
+    }
+  ]
+}

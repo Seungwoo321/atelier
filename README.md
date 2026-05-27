@@ -1,68 +1,176 @@
+<div align="center">
+
 # Atelier
 
-> Virtual company of role-specialized agents. Phase A skeleton.
+**Virtual company of role-specialized agents.**
+A Python framework that orchestrates 28 LLM-driven roles across 9 departments through 5 strategic gates (G1–G5), shipping typed artifacts on every run.
 
-설계·정책 문서는 sibling 레포 [`../multi-agent-workflow-research/`](../multi-agent-workflow-research/). 본 레포는 *구현*만 담는다.
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](#license)
+[![Status](https://img.shields.io/badge/status-v1.0-green.svg)](#)
 
-## 현재 페이즈
+</div>
 
-**Phase A — Foundation** (사용자 결정 [`02-decisions.md` §D8](../multi-agent-workflow-research/03-virtual-company/02-decisions.md#d8--phase-a-foundation-확정값) 기준).
+---
 
-- 9 리드, 로컬, SQLite checkpointer, dry-run only
-- CLI 진입점 `atelier`
-- 인박스: `./inbox/*.md` + Claude Code 슬래시
+## Overview
 
-## 설치 (개발)
+Atelier models a software company as a directed graph of role-specialized agents. A single user request enters as an inbox file, flows through five strategic gates — **Charter → Plan → Design → Build → Launch** — and exits as a folder of typed, schema-validated artifacts plus a launch memo.
+
+Two LLM transports are supported, both already shipping:
+
+1. **Claude Code SDK in-process** — uses `claude-agent-sdk`, sharing the user's Claude Pro/Max subscription via browser OAuth.
+2. **ACP (Agent Client Protocol)** — speaks JSON-RPC over stdio to any ACP-compatible agent (Claude Code ACP, Gemini ACP, Codex CLI).
+
+All callers depend on a single `LLMProvider` Protocol — these two are the only implementations.
+
+## Features
+
+- **9 department leads** (Opus 4.7) + **19 specialists** (Sonnet 4.6), defined as composable `Role` objects.
+- **5 strategic gates** wired as a LangGraph with optional SQLite checkpointing.
+- **4 decision protocols** — Reflexion (cap 3, ≥10% improvement), Bounded Debate (N=2, ≥30% change rate), Cross-Dept Council (PM Lead deciding vote, ≥20% disagreement), Janitor Memo.
+- **4-stage verification** — Schema (Pydantic) → Critic (deterministic) → Judge (LLM rubric) → Guardrails (PII/secrets).
+- **3-tier memory** — Org (read-only) / Project (shared) / Role (self-edit).
+- **Subscription-quota budget** — fraction-based accounting (`QuotaGuard`), not USD per token.
+- **MCP tool registry** — 13 servers mapped to departments out of the box.
+- **Optional integrations** — Langfuse tracing, Temporal durable workflows, E2B sandboxed code execution.
+- **Web dashboard** — Next.js 16 + React 19, with a PixiJS office view rendered on Modern Interiors sprites.
+- **Claude Code plugin** — slash commands for gate approval inside Claude Code.
+
+## Installation
 
 ```bash
-git clone <local-only-for-now>
+git clone https://github.com/Seungwoo321/atelier.git
 cd atelier
-uv venv && source .venv/bin/activate  # 또는 python3.12 -m venv .venv
+uv venv && source .venv/bin/activate     # or: python3.12 -m venv .venv
 uv pip install -e ".[dev]"
 
-# Claude 구독 인증 (브라우저 OAuth — Claude Code SDK가 처리)
+# First-time browser OAuth for Claude subscription:
 atelier auth login
 ```
 
-## 첫 실행
+Python 3.12+ required.
+
+## Quick Start
 
 ```bash
-atelier start "개인 개발자용 주간 회고 자동화 CLI"
+# Drop a request, run all five gates, print the resulting artifact tree:
+atelier start "weekly retrospective CLI for solo developers"
+
+# List queued inbox items:
+atelier inbox list
+
+# Approve a gate card (Phase A: file-flag based):
+atelier inbox approve ./inbox/20260101-120000-request.md
+
+# Inspect available MCP tools for a department:
+atelier mcp list --department Engineering
+
+# Show last result:
+atelier result
 ```
 
-## LLM 통합 경로 (확정 — [`D2`](../multi-agent-workflow-research/03-virtual-company/02-decisions.md#d2--llm-통합-경로-정확히-두-개))
+Artifacts land in `./artifacts/<project_id>/result.json`. Run logs and the SQLite checkpoint live in `./runs/`.
 
-오직 두 경로:
-1. **Claude Code SDK 인프로세스** (`@anthropic-ai/claude-agent-sdk` Python 바인딩)
-2. **ACP (Agent Client Protocol)** 클라이언트
+## Environment
 
-코드 호출부는 `atelier.llm.provider.LLMProvider` Protocol에만 의존.
+Copy `.env.example` to `.env` and adjust:
 
-## 디렉터리
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `ATELIER_LLM_PROVIDER` | `sdk` | `sdk` (in-process) or `acp` |
+| `ATELIER_ACP_ENDPOINT` | — | ACP agent command line (when provider=`acp`) |
+| `ATELIER_QUOTA_CAP` | `0.20` | Daily quota fraction (0.0–1.0) |
+| `ATELIER_ARTIFACTS_DIR` | `./artifacts` | Where artifacts are written |
+| `ATELIER_INBOX_DIR` | `./inbox` | Where inbox markdown files live |
+| `ATELIER_RUNS_DIR` | `./runs` | Logs + SQLite checkpointer |
+| `ATELIER_LOG_LEVEL` | `INFO` | Structured log level |
+
+Optional integrations: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
+
+## Project Layout
 
 ```
 atelier/
-├── cli.py              # Typer 진입점
-├── config.py           # Pydantic Settings
-├── llm/
-│   ├── provider.py     # Protocol (인터페이스)
-│   ├── sdk_inprocess.py
-│   └── acp_client.py
-├── roles/              # 9 리드 (Phase A)
-├── artifacts/          # Pydantic 산출물 스키마
-├── graph/              # LangGraph 노드·게이트
-├── memory/             # 3계층 메모리
-├── protocols/          # 의사결정 4종
-├── verify/             # 4단 게이트 (Schema→Critic→Judge→Guardrails)
-├── budget.py           # QuotaGuard
-├── inbox.py            # ./inbox/*.md
-└── plugin/             # Claude Code 플러그인
+├── atelier/                  # Python package
+│   ├── cli.py                # Typer entry point
+│   ├── config.py             # Pydantic Settings
+│   ├── runner.py             # High-level run engine
+│   ├── budget.py             # QuotaGuard
+│   ├── inbox.py              # ./inbox/*.md ops
+│   ├── llm/                  # LLMProvider Protocol + SDK & ACP
+│   ├── roles/                # 9 leads + specialists catalog
+│   ├── artifacts/            # Pydantic schemas per gate
+│   ├── graph/                # LangGraph wiring + G1–G5 gates
+│   ├── protocols/            # Reflexion, Debate, Council, Janitor
+│   ├── verify/               # 4-stage verification
+│   ├── memory/               # Org / Project / Role tiers
+│   ├── mcp/                  # MCP server registry
+│   ├── observability/        # structlog + Langfuse
+│   ├── durable/              # Temporal client wrapper
+│   ├── sandbox/              # E2B + local fallback
+│   ├── eval/                 # Eval Officer + DEPT_RUBRICS
+│   └── plugin/               # Claude Code plugin
+├── web/                      # Next.js 16 + React 19 dashboard
+├── assets/                   # Modern Interiors sprites (free version)
+├── tests/
+└── .claude/                  # Project memory + rules for Claude Code
 ```
 
-## 기여
+## The 9 Departments
 
-내부 프로젝트. 외부 contrib 비목표 (v1.0 출시 전).
+| # | Department | Lead | Specialists |
+| --- | --- | --- | --- |
+| 1 | Strategy | BizDev Lead | Market Researcher, Competitor Analyst, BM Modeler |
+| 2 | Product | PM Lead | PM Specialist, Product Designer |
+| 3 | Design | Design Lead | UX, UI, Brand Designer |
+| 4 | Engineering | Eng Manager | Tech Lead, FE, BE, Infra, DB, Security, DevOps |
+| 5 | QA | QA Lead | Test Engineer, Bug Hunter |
+| 6 | Marketing | Mkt Lead | Content Writer, SEO, Growth, Social |
+| 7 | Operations | Ops Lead | Customer Support, Community Manager |
+| 8 | Analytics | Analytics Lead | Data Analyst, Financial Modeler |
+| 9 | Chief | Chief of Staff | Memory Keeper, Eval Officer |
 
-## 라이선스
+Model tier: leads and Chief group → Opus 4.7; specialists → Sonnet 4.6; runtime utility tasks → Haiku 4.5.
 
-Proprietary.
+## The 5 Gates
+
+```
+inbox/*.md
+   │
+   ▼
+G1 Charter ──► G2 Plan ──► G3 Design ──► G4 Build ──► G5 Launch ──► artifacts/
+   │              │             │             │            │
+   └──────────────┴── 4-stage verify (Schema → Critic → Judge → Guardrails) ───────────┘
+```
+
+Each gate produces a typed Pydantic artifact (`ProductCharter`, `Plan`, `PRD` + `DesignMemo`, `CodeReview`, `LaunchMemo`). A failing verification stage triggers Reflexion (up to 3 iterations) before escalating to a Cross-Dept Council.
+
+## Web Dashboard
+
+The `web/` directory ships a Next.js 16 + React 19 dashboard with a PixiJS-rendered office view (Modern Interiors tilemap). Start it with:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open <http://localhost:3000>. The landing page is at `/`, the live office at `/office`.
+
+## Claude Code Plugin
+
+Place `atelier/plugin/` on your Claude Code plugin path or invoke it via the bundled slash commands (`/atelier-start`, `/atelier-approve`). See `atelier/plugin/README.md`.
+
+## Development
+
+```bash
+uv pip install -e ".[dev]"
+ruff check .
+mypy atelier
+pytest
+```
+
+## License
+
+Proprietary — internal use only. Modern Interiors sprite assets bundled under `assets/modern-interiors/` are © LimeZu and redistributed under the *free version* license (non-commercial use only). See `assets/modern-interiors/LICENSE.txt`.

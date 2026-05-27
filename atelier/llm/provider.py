@@ -4,8 +4,7 @@ Two concrete implementations:
 - ClaudeSDKProvider — Claude Code SDK in-process (claude-agent-sdk)
 - ACPProvider       — Agent Client Protocol client
 
-No other LLM access paths are permitted (see ../../../multi-agent-workflow-research/
-03-virtual-company/02-decisions.md#D2).
+No other LLM access paths are permitted.
 """
 
 from __future__ import annotations
