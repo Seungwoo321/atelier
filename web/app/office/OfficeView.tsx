@@ -196,6 +196,26 @@ export default function OfficeView() {
     return sum;
   }, [events]);
 
+  const sparkBins = useMemo(() => {
+    const BUCKETS = 12;
+    const WINDOW_MS = 60_000;
+    const stamps: number[] = [];
+    for (const e of events) {
+      const t = typeof e.ts === "string" ? Date.parse(e.ts) : Number.NaN;
+      if (Number.isFinite(t)) stamps.push(t);
+    }
+    if (stamps.length === 0) return { bins: new Array(BUCKETS).fill(0), max: 1 };
+    const last = Math.max(...stamps);
+    const start = last - WINDOW_MS;
+    const bins = new Array(BUCKETS).fill(0);
+    for (const t of stamps) {
+      if (t < start) continue;
+      const idx = Math.min(BUCKETS - 1, Math.floor(((t - start) / WINDOW_MS) * BUCKETS));
+      bins[idx] += 1;
+    }
+    return { bins, max: Math.max(1, ...bins) };
+  }, [events]);
+
   const [filterDept, setFilterDept] = useState<string | null>(null);
 
   useEffect(() => {
@@ -315,11 +335,36 @@ export default function OfficeView() {
       </div>
 
       <aside className="rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col" style={{ maxHeight: 590 }}>
-        <div className="px-3 py-2 border-b border-neutral-800 text-xs font-semibold text-neutral-300 flex items-center justify-between">
+        <div className="px-3 py-2 border-b border-neutral-800 text-xs font-semibold text-neutral-300 flex items-center justify-between gap-2">
           <span>live event log</span>
-          <span className="text-[10px] font-mono text-neutral-500 tabular-nums">
-            {filterDept ? `${filtered.length}/${events.length}` : `${events.length} total`}
-          </span>
+          <div className="flex items-center gap-2">
+            <svg
+              viewBox="0 0 60 14"
+              width={60}
+              height={14}
+              aria-label={`activity over last 60s, peak ${sparkBins.max}`}
+              role="img"
+              className="shrink-0"
+            >
+              {sparkBins.bins.map((v, i) => {
+                const h = (v / sparkBins.max) * 12;
+                return (
+                  <rect
+                    key={i}
+                    x={i * 5}
+                    y={14 - h}
+                    width={3.5}
+                    height={Math.max(h, 0.6)}
+                    rx={0.6}
+                    fill={v > 0 ? "rgb(168 85 247 / 0.85)" : "rgb(82 82 91 / 0.55)"}
+                  />
+                );
+              })}
+            </svg>
+            <span className="text-[10px] font-mono text-neutral-500 tabular-nums">
+              {filterDept ? `${filtered.length}/${events.length}` : `${events.length} total`}
+            </span>
+          </div>
         </div>
         {filterDept && (
           <div className="px-3 py-1.5 border-b border-neutral-800 bg-purple-500/10 text-[11px] flex items-center justify-between">
