@@ -128,15 +128,18 @@ export default function Home() {
               />
               <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3">
                 <div className="flex justify-end gap-1.5">
-                  <span className="rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-amber-200 ring-1 ring-amber-500/30 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-amber-200 ring-1 ring-amber-500/30 backdrop-blur-sm">
+                    <span className="h-1 w-1 rounded-full bg-amber-300 animate-pulse shadow-[0_0_5px_#fcd34d]" />
                     SDK in-process
                   </span>
-                  <span className="rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-cyan-200 ring-1 ring-cyan-500/30 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-cyan-200 ring-1 ring-cyan-500/30 backdrop-blur-sm">
+                    <span className="h-1 w-1 rounded-full bg-cyan-300 animate-pulse shadow-[0_0_5px_#67e8f9]" />
                     ACP
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-300">
-                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-200 ring-1 ring-emerald-500/30">
+                  <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-200 ring-1 ring-emerald-500/30">
+                    <span className="h-1 w-1 rounded-full bg-emerald-300 animate-pulse" />
                     G4 · review
                   </span>
                   <span className="text-neutral-500">quota 10.0% · 9 leads</span>

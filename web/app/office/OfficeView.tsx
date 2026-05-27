@@ -197,6 +197,12 @@ export default function OfficeView() {
   }, [events]);
 
   const [filterDept, setFilterDept] = useState<string | null>(null);
+
+  useEffect(() => {
+    for (const [dept, sp] of spriteMap.current.entries()) {
+      sp.alpha = filterDept && dept !== filterDept ? 0.35 : 1;
+    }
+  }, [filterDept]);
   const filtered = useMemo(
     () => (filterDept ? recent.filter((e) => e.dept === filterDept) : recent),
     [recent, filterDept],
