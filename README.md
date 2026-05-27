@@ -13,6 +13,10 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 
 ![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r9-office.png)
 
+> **Live action** — particle trails from the Chief of Staff to each dept lead trigger as events arrive on the SSE stream:
+>
+> ![Atelier office in motion — particle trails on event arrival, live event log filling, Cross-Dept Council pulse](docs/office-demo.gif)
+
 ---
 
 ## Overview
