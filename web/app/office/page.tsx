@@ -15,7 +15,9 @@ export default function OfficePage() {
           ← back
         </Link>
       </div>
-      <OfficeView />
+      <section aria-label="Live office canvas and event log">
+        <OfficeView />
+      </section>
       <p className="mt-6 text-sm text-neutral-400">
         Rendered with PixiJS v8 on Modern Interiors sprites. Characters animate
         when events arrive on the SSE stream from <code>/api/events</code>.

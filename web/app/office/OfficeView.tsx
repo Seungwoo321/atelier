@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Application, Assets, Sprite, Container, Rectangle, Texture } from "pixi.js";
+import { Application, Assets, Sprite, Container, Rectangle, Texture, Graphics } from "pixi.js";
 import { useEventStream } from "@/lib/useEventStream";
 
 const SPRITES = ["Adam", "Alex", "Amelia", "Bob"] as const;
@@ -30,6 +30,7 @@ export default function OfficeView() {
   const stageRef = useRef<HTMLDivElement>(null);
   const events = useEventStream("/api/events");
   const spriteMap = useRef(new Map<string, Sprite>());
+  const particleLayerRef = useRef<Container | null>(null);
 
   useEffect(() => {
     const host = stageRef.current;
@@ -57,6 +58,10 @@ export default function OfficeView() {
 
       const charLayer = new Container();
       app.stage.addChild(charLayer);
+
+      const particleLayer = new Container();
+      app.stage.addChild(particleLayer);
+      particleLayerRef.current = particleLayer;
 
       const FRAME_W = 16;
       const FRAME_H = 32;
@@ -122,6 +127,34 @@ export default function OfficeView() {
       requestAnimationFrame(tick);
     };
     tick();
+
+    const layer = particleLayerRef.current;
+    const chief = spriteMap.current.get("Chief");
+    if (layer && chief && dept !== "Chief") {
+      const x0 = chief.x + 16;
+      const y0 = chief.y + 16;
+      const x1 = sp.x + 16;
+      const y1 = sp.y + 16;
+      const dot = new Graphics().circle(0, 0, 4).fill({ color: 0xfde68a, alpha: 0.95 });
+      dot.x = x0;
+      dot.y = y0;
+      layer.addChild(dot);
+      const t0 = performance.now();
+      const animate = () => {
+        const t = Math.min(1, (performance.now() - t0) / 700);
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        dot.x = x0 + (x1 - x0) * e;
+        dot.y = y0 + (y1 - y0) * e - Math.sin(t * Math.PI) * 24;
+        dot.alpha = t < 0.85 ? 0.95 : (1 - t) / 0.15;
+        if (t >= 1) {
+          layer.removeChild(dot);
+          dot.destroy();
+          return;
+        }
+        requestAnimationFrame(animate);
+      };
+      animate();
+    }
   }, [events]);
 
   const recent = useMemo(() => events.slice(-12).reverse(), [events]);
