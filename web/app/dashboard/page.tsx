@@ -190,22 +190,35 @@ export default async function DashboardPage() {
                 <ol className="mt-5 flex items-stretch gap-1.5 text-[11px] font-mono">
                   {GATES.map((g) => {
                     const passed = gatePassed(data, g.id);
+                    const current = data.current_gate === g.id;
                     const t = timings[g.id];
                     return (
                       <li
                         key={g.id}
                         className={
-                          "flex-1 rounded px-2 py-1.5 text-center ring-1 " +
-                          (passed
+                          "relative flex-1 rounded px-2 py-1.5 text-center ring-1 " +
+                          (current
+                            ? "bg-purple-500/15 text-purple-200 ring-purple-400/60 shadow-[0_0_12px_-2px_rgba(168,85,247,0.6)]"
+                            : passed
                             ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30"
                             : "bg-neutral-900 text-neutral-500 ring-neutral-800")
                         }
                       >
+                        {current && (
+                          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-purple-300 shadow-[0_0_6px_#d8b4fe] animate-pulse" />
+                        )}
                         <div>
                           <span className="opacity-70">{g.id}</span> · {g.label}
                         </div>
                         {t && (
-                          <div className="mt-0.5 text-[10px] text-emerald-200/80">{t}</div>
+                          <div
+                            className={
+                              "mt-0.5 text-[10px] " +
+                              (current ? "text-purple-200/80" : "text-emerald-200/80")
+                            }
+                          >
+                            {t}
+                          </div>
                         )}
                       </li>
                     );

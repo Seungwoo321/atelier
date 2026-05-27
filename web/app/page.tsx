@@ -1,5 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CopyButton } from "./CopyButton";
+
+const QUICKSTART = `git clone https://github.com/Seungwoo321/atelier.git
+cd atelier
+uv venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
+
+atelier auth login
+atelier start "weekly retrospective CLI for solo developers"
+
+cd web && pnpm install && pnpm dev`;
 
 const FEATURES = [
   {
@@ -246,7 +257,11 @@ export default function Home() {
             pnpm for <code className="rounded bg-neutral-900 px-1 py-0.5">web/</code> · uv for Python
           </span>
         </div>
-        <pre className="mt-5 overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-5 text-sm leading-relaxed">
+        <div className="relative mt-5">
+          <div className="absolute right-3 top-3 z-10">
+            <CopyButton text={QUICKSTART} label="copy" />
+          </div>
+        <pre className="overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950 p-5 pr-20 text-sm leading-relaxed">
           <code>
             <span className="text-neutral-500"># clone &amp; bootstrap</span>
             {"\n"}
@@ -271,6 +286,7 @@ export default function Home() {
             cd web && pnpm install && pnpm dev
           </code>
         </pre>
+        </div>
       </section>
 
       <footer className="mt-24 flex items-center justify-between border-t border-neutral-800 pt-6 text-sm text-neutral-500">
