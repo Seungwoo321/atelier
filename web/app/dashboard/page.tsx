@@ -127,6 +127,27 @@ function gateScores(events: EventRow[]): Record<string, number> {
   return out;
 }
 
+function gateRanges(events: EventRow[]): {
+  start: number;
+  end: number;
+  spans: Array<{ id: string; lo: number; hi: number }>;
+} | null {
+  const buckets: Record<string, number[]> = { G1: [], G2: [], G3: [], G4: [], G5: [] };
+  for (const e of events) {
+    const m = /^g([1-5])\./.exec(e.event);
+    if (m) buckets[`G${m[1]}`].push(new Date(e.ts).getTime());
+  }
+  const spans: Array<{ id: string; lo: number; hi: number }> = [];
+  for (const [id, ts] of Object.entries(buckets)) {
+    if (ts.length === 0) continue;
+    spans.push({ id, lo: Math.min(...ts), hi: Math.max(...ts) });
+  }
+  if (spans.length === 0) return null;
+  const start = Math.min(...spans.map((s) => s.lo));
+  const end = Math.max(...spans.map((s) => s.hi));
+  return { start, end, spans };
+}
+
 function gateTimings(events: EventRow[]): Record<string, string> {
   const out: Record<string, string> = {};
   const buckets: Record<string, Date[]> = { G1: [], G2: [], G3: [], G4: [], G5: [] };
@@ -152,6 +173,14 @@ export default async function DashboardPage() {
   const deptQuota = quotaByDept(events);
   const timings = gateTimings(events);
   const scores = gateScores(events);
+  const ranges = gateRanges(events);
+  const gateColor: Record<string, string> = {
+    G1: "bg-amber-400/80",
+    G2: "bg-purple-400/80",
+    G3: "bg-cyan-400/80",
+    G4: "bg-emerald-400/80",
+    G5: "bg-rose-400/80",
+  };
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -247,6 +276,37 @@ export default async function DashboardPage() {
                     );
                   })}
                 </ol>
+
+                {ranges && ranges.end > ranges.start && (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-neutral-500">
+                      <span>timeline</span>
+                      <span className="font-mono tabular-nums text-neutral-600">
+                        {Math.max(1, Math.round((ranges.end - ranges.start) / 1000))}s total
+                      </span>
+                    </div>
+                    <div className="mt-1.5 relative h-3 rounded-full bg-neutral-900 ring-1 ring-neutral-800 overflow-hidden">
+                      {ranges.spans.map((s) => {
+                        const span = ranges.end - ranges.start || 1;
+                        const left = ((s.lo - ranges.start) / span) * 100;
+                        const width = Math.max(2, ((s.hi - s.lo) / span) * 100);
+                        return (
+                          <span
+                            key={s.id}
+                            className={`absolute top-0 h-full ${gateColor[s.id]} opacity-90`}
+                            style={{ left: `${left}%`, width: `${width}%` }}
+                            title={`${s.id} · ${Math.round((s.hi - s.lo) / 1000)}s`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="mt-1 flex justify-between text-[10px] font-mono text-neutral-600 tabular-nums">
+                      {ranges.spans.map((s) => (
+                        <span key={s.id}>{s.id}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                   {data.charter && (
