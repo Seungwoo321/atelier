@@ -11,6 +11,8 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 
 </div>
 
+![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r6c-office.png)
+
 ---
 
 ## Overview
@@ -71,6 +73,10 @@ atelier result
 ```
 
 Artifacts land in `./artifacts/<project_id>/result.json`. Run logs and the SQLite checkpoint live in `./runs/`.
+
+A CLI walkthrough:
+
+![Atelier CLI](docs/demo.gif)
 
 ## Environment
 
@@ -157,6 +163,13 @@ pnpm dev
 ```
 
 Open <http://localhost:3000>. The landing page is at `/`, the live office at `/office`, and the run summary at `/dashboard`.
+
+| Route | Preview |
+| --- | --- |
+| `/` — landing | ![](docs/r7-landing.png) |
+| `/office` — live office | ![](docs/r6c-office.png) |
+| `/dashboard` — run summary | ![](docs/r6c-dashboard.png) |
+
 
 Want the office and dashboard populated before your first real run? Seed a sample run:
 
