@@ -199,6 +199,11 @@ export default function OfficeView() {
   const [filterDept, setFilterDept] = useState<string | null>(null);
 
   useEffect(() => {
+    const initial = new URLSearchParams(window.location.search).get("dept");
+    if (initial) setFilterDept(initial);
+  }, []);
+
+  useEffect(() => {
     for (const [dept, sp] of spriteMap.current.entries()) {
       sp.alpha = filterDept && dept !== filterDept ? 0.35 : 1;
     }
@@ -303,7 +308,9 @@ export default function OfficeView() {
       <aside className="rounded-xl border border-neutral-800 bg-neutral-950 flex flex-col" style={{ maxHeight: 590 }}>
         <div className="px-3 py-2 border-b border-neutral-800 text-xs font-semibold text-neutral-300 flex items-center justify-between">
           <span>live event log</span>
-          <span className="text-[10px] font-mono text-neutral-500">{events.length} total</span>
+          <span className="text-[10px] font-mono text-neutral-500 tabular-nums">
+            {filterDept ? `${filtered.length}/${events.length}` : `${events.length} total`}
+          </span>
         </div>
         {filterDept && (
           <div className="px-3 py-1.5 border-b border-neutral-800 bg-purple-500/10 text-[11px] flex items-center justify-between">

@@ -387,17 +387,25 @@ export default async function DashboardPage() {
                 {deptQuota.map((d) => {
                   const w = Math.min(100, Math.round((d.frac / Math.max(0.001, deptQuota[0].frac)) * 100));
                   return (
-                    <li key={d.dept} className="flex items-center gap-2">
-                      <span className="w-20 truncate text-neutral-400">{d.dept}</span>
-                      <span className="relative h-1 flex-1 overflow-hidden rounded-full bg-neutral-900">
-                        <span
-                          className="absolute inset-y-0 left-0 bg-amber-300/70"
-                          style={{ width: `${w}%` }}
-                        />
-                      </span>
-                      <span className="w-10 text-right font-mono text-neutral-500 tabular-nums">
-                        {(d.frac * 100).toFixed(1)}%
-                      </span>
+                    <li key={d.dept}>
+                      <Link
+                        href={`/office?dept=${encodeURIComponent(d.dept)}`}
+                        className="flex items-center gap-2 rounded px-1 -mx-1 hover:bg-neutral-900/70 transition"
+                        title={`Filter the office to ${d.dept}`}
+                      >
+                        <span className="w-20 truncate text-neutral-400 group-hover:text-neutral-200">
+                          {d.dept}
+                        </span>
+                        <span className="relative h-1 flex-1 overflow-hidden rounded-full bg-neutral-900">
+                          <span
+                            className="absolute inset-y-0 left-0 bg-amber-300/70"
+                            style={{ width: `${w}%` }}
+                          />
+                        </span>
+                        <span className="w-10 text-right font-mono text-neutral-500 tabular-nums">
+                          {(d.frac * 100).toFixed(1)}%
+                        </span>
+                      </Link>
                     </li>
                   );
                 })}
