@@ -118,6 +118,15 @@ function quotaByDept(events: EventRow[]): Array<{ dept: string; frac: number }> 
     .sort((a, b) => b.frac - a.frac);
 }
 
+function gateScores(events: EventRow[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const e of events) {
+    const m = /^g([1-5])\..*judge/.exec(e.event);
+    if (m && typeof e.score === "number") out[`G${m[1]}`] = e.score;
+  }
+  return out;
+}
+
 function gateTimings(events: EventRow[]): Record<string, string> {
   const out: Record<string, string> = {};
   const buckets: Record<string, Date[]> = { G1: [], G2: [], G3: [], G4: [], G5: [] };
@@ -142,6 +151,7 @@ export default async function DashboardPage() {
   const quotaPct = Math.min(100, Math.round((quota / 0.2) * 100));
   const deptQuota = quotaByDept(events);
   const timings = gateTimings(events);
+  const scores = gateScores(events);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -210,16 +220,29 @@ export default async function DashboardPage() {
                         <div>
                           <span className="opacity-70">{g.id}</span> · {g.label}
                         </div>
-                        {t && (
-                          <div
-                            className={
-                              "mt-0.5 text-[10px] " +
-                              (current ? "text-purple-200/80" : "text-emerald-200/80")
-                            }
-                          >
-                            {t}
-                          </div>
-                        )}
+                        <div className="mt-0.5 flex items-center justify-center gap-1.5 text-[10px]">
+                          {t && (
+                            <span
+                              className={
+                                current ? "text-purple-200/80" : "text-emerald-200/80"
+                              }
+                            >
+                              {t}
+                            </span>
+                          )}
+                          {scores[g.id] !== undefined && (
+                            <span
+                              className={
+                                "rounded px-1 py-px tabular-nums " +
+                                (scores[g.id] >= 8
+                                  ? "bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-400/30"
+                                  : "bg-rose-500/20 text-rose-200 ring-1 ring-rose-400/30")
+                              }
+                            >
+                              judge {scores[g.id].toFixed(1)}
+                            </span>
+                          )}
+                        </div>
                       </li>
                     );
                   })}

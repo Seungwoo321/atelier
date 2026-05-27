@@ -239,8 +239,9 @@ export default function Home() {
           {FEATURES.map((f) => (
             <div
               key={f.title}
-              className="group rounded-lg border border-neutral-800 bg-neutral-950 p-5 transition hover:border-purple-500/40 hover:bg-neutral-900/50"
+              className="group relative rounded-lg border border-neutral-800 bg-neutral-950 p-5 transition duration-200 hover:-translate-y-0.5 hover:border-purple-500/50 hover:bg-neutral-900/60 hover:shadow-[0_18px_40px_-22px_rgba(168,85,247,0.45)]"
             >
+              <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-purple-400/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <h3 className="font-semibold text-neutral-100">{f.title}</h3>
               <p className="mt-2 text-sm text-neutral-400 group-hover:text-neutral-300">
                 {f.body}
