@@ -208,6 +208,15 @@ export default function OfficeView() {
       sp.alpha = filterDept && dept !== filterDept ? 0.35 : 1;
     }
   }, [filterDept]);
+
+  useEffect(() => {
+    if (!filterDept) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFilterDept(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filterDept]);
   const filtered = useMemo(
     () => (filterDept ? recent.filter((e) => e.dept === filterDept) : recent),
     [recent, filterDept],
@@ -320,9 +329,13 @@ export default function OfficeView() {
             <button
               type="button"
               onClick={() => setFilterDept(null)}
-              className="text-[10px] text-purple-300 hover:text-purple-100 underline-offset-2 hover:underline"
+              className="flex items-center gap-1 text-[10px] text-purple-300 hover:text-purple-100"
+              title="press Esc"
             >
-              clear
+              <kbd className="rounded border border-purple-400/30 bg-purple-500/10 px-1 py-px font-mono text-[9px] text-purple-200">
+                Esc
+              </kbd>
+              <span className="underline-offset-2 hover:underline">clear</span>
             </button>
           </div>
         )}
