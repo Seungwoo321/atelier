@@ -62,6 +62,12 @@ export default function Home() {
             Drop a request. Watch 28 roles across 9 departments collaborate through 5
             strategic gates. Ship typed artifacts on every run.
           </p>
+          <p className="mt-3 max-w-xl text-sm text-neutral-500">
+            Powered by Claude — runs in-process via the{" "}
+            <span className="text-neutral-300">Claude Code SDK</span> or over stdio via{" "}
+            <span className="text-neutral-300">ACP</span>. One Protocol, two transports,
+            no third-party LLM clients.
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/office"
@@ -100,20 +106,95 @@ export default function Home() {
               </div>
               <span className="text-emerald-300/80">live</span>
             </div>
-            <Image
-              src="/office-bg.png"
-              alt="Office preview"
-              width={960}
-              height={540}
-              className="block w-full"
-              priority
-            />
+            <div className="relative">
+              <Image
+                src="/office-bg.png"
+                alt="Office preview"
+                width={960}
+                height={540}
+                className="block w-full"
+                priority
+              />
+              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3">
+                <div className="flex justify-end gap-1.5">
+                  <span className="rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-amber-200 ring-1 ring-amber-500/30 backdrop-blur-sm">
+                    SDK in-process
+                  </span>
+                  <span className="rounded-full bg-black/65 px-2 py-0.5 text-[10px] font-mono text-cyan-200 ring-1 ring-cyan-500/30 backdrop-blur-sm">
+                    ACP
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-300">
+                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-200 ring-1 ring-emerald-500/30">
+                    G4 · review
+                  </span>
+                  <span className="text-neutral-500">quota 10.0% · 9 leads</span>
+                </div>
+              </div>
+            </div>
           </div>
           <p className="mt-3 text-center text-[11px] text-neutral-500">
             PixiJS · Modern Interiors sprites · animated by SSE events
           </p>
         </div>
       </header>
+
+      <section className="mt-20">
+        <h2 className="text-2xl font-semibold">How it works</h2>
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            {
+              step: "01",
+              title: "Drop a request",
+              body: (
+                <>
+                  <code className="rounded bg-neutral-900 px-1.5 py-0.5 text-xs text-amber-200">
+                    atelier start &quot;…&quot;
+                  </code>{" "}
+                  spins up the Chief of Staff and routes the brief through the org.
+                </>
+              ),
+            },
+            {
+              step: "02",
+              title: "Run the gates",
+              body: (
+                <>
+                  G1 → G5 with 4-stage verification (Schema → Critic → Judge → Guardrails).
+                  Reflexion, Bounded Debate, and Cross-Dept Council resolve disagreements.
+                </>
+              ),
+            },
+            {
+              step: "03",
+              title: "Ship typed artifacts",
+              body: (
+                <>
+                  Every gate writes a Pydantic model to{" "}
+                  <code className="rounded bg-neutral-900 px-1.5 py-0.5 text-xs">
+                    artifacts/&lt;project&gt;/
+                  </code>{" "}
+                  with SSE events streamed to the office.
+                </>
+              ),
+            },
+          ].map(({ step, title, body }, i, arr) => (
+            <div
+              key={step}
+              className="relative rounded-lg border border-neutral-800 bg-neutral-950 p-5"
+            >
+              <div className="font-mono text-[11px] text-purple-400">{step}</div>
+              <div className="mt-1 font-semibold">{title}</div>
+              <p className="mt-2 text-sm text-neutral-400">{body}</p>
+              {i < arr.length - 1 && (
+                <span className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-neutral-700 md:block">
+                  →
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mt-20">
         <div className="flex items-baseline justify-between">
