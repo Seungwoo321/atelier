@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { AutoRefresh } from "./AutoRefresh";
 
 export const dynamic = "force-dynamic";
 
@@ -193,9 +194,12 @@ export default async function DashboardPage() {
             <code className="rounded bg-neutral-900 px-1 py-0.5 text-xs">runs/events.jsonl</code>.
           </p>
         </div>
-        <Link href="/" className="text-sm text-neutral-400 hover:text-white">
-          ← back
-        </Link>
+        <div className="flex items-center gap-3">
+          <AutoRefresh intervalMs={4000} />
+          <Link href="/" className="text-sm text-neutral-400 hover:text-white">
+            ← back
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -375,7 +379,7 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-900">
               <div
-                className="h-full bg-gradient-to-r from-amber-300 to-rose-300"
+                className="h-full bg-gradient-to-r from-amber-300 to-rose-300 transition-[width] duration-700 ease-out"
                 style={{ width: `${quotaPct}%` }}
               />
             </div>
@@ -398,7 +402,7 @@ export default async function DashboardPage() {
                         </span>
                         <span className="relative h-1 flex-1 overflow-hidden rounded-full bg-neutral-900">
                           <span
-                            className="absolute inset-y-0 left-0 bg-amber-300/70"
+                            className="absolute inset-y-0 left-0 bg-amber-300/70 transition-[width] duration-700 ease-out"
                             style={{ width: `${w}%` }}
                           />
                         </span>
