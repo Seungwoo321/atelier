@@ -384,7 +384,13 @@ export default function OfficeView() {
             </button>
           </div>
         )}
-        <div className="flex-1 overflow-auto p-2 space-y-1.5 text-[11px] font-mono">
+        <div
+          className="flex-1 overflow-auto p-2 space-y-1.5 text-[11px] font-mono"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label="live event log"
+        >
           {filtered.length === 0 ? (
             <div className="text-neutral-500 px-1 py-2">
               {filterDept
