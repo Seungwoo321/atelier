@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { ActiveRunsPanel } from "./ActiveRunsPanel";
 import { AutoRefresh } from "./AutoRefresh";
 import { InboxPanel } from "./InboxPanel";
 
@@ -415,6 +416,7 @@ export default async function DashboardPage() {
         </section>
 
         <aside className="space-y-4">
+          <ActiveRunsPanel />
           <InboxPanel />
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
             <div className="flex items-baseline justify-between">
