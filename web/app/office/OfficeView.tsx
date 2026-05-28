@@ -14,6 +14,10 @@ type Lead = {
   y: number;
 };
 
+interface RolesResponse {
+  byDept: Record<string, { tier: "lead" | "specialist"; name: string }[]>;
+}
+
 const LEADS: Lead[] = [
   { dept: "Chief", name: "Chief of Staff", sprite: "Adam", x: 80, y: 130 },
   { dept: "Strategy", name: "BizDev Lead", sprite: "Alex", x: 288, y: 130 },
@@ -217,6 +221,42 @@ export default function OfficeView() {
   }, [events]);
 
   const [filterDept, setFilterDept] = useState<string | null>(null);
+  const [specCount, setSpecCount] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/roles");
+        if (!res.ok) return;
+        const data: RolesResponse = await res.json();
+        if (cancelled) return;
+        const counts: Record<string, number> = {};
+        for (const [dept, roles] of Object.entries(data.byDept ?? {})) {
+          counts[dept] = roles.filter((r) => r.tier === "specialist").length;
+        }
+        setSpecCount(counts);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const specActivity = useMemo(() => {
+    const map: Record<string, number> = {};
+    const cutoff = Date.now() - 8000;
+    for (const e of events) {
+      if (typeof e.event !== "string" || !e.event.startsWith("specialist.")) continue;
+      const dept = typeof e.dept === "string" ? e.dept : null;
+      if (!dept) continue;
+      const t = typeof e.ts === "string" ? Date.parse(e.ts) : Number.NaN;
+      if (Number.isFinite(t) && t >= cutoff) map[dept] = (map[dept] ?? 0) + 1;
+    }
+    return map;
+  }, [events]);
 
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("dept");
@@ -251,7 +291,12 @@ export default function OfficeView() {
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
               <span className="font-mono text-emerald-300/90">atelier://office</span>
-              <span className="text-neutral-500">· 9 leads on duty</span>
+              <span className="text-neutral-500">
+                · 9 leads on duty
+                {Object.keys(specCount).length > 0
+                  ? ` + ${Object.values(specCount).reduce((a, b) => a + b, 0)} specialists`
+                  : ""}
+              </span>
             </div>
             <div className="hidden sm:block font-mono text-neutral-400">
               gate:{" "}
@@ -307,6 +352,25 @@ export default function OfficeView() {
                 <div className="mt-0.5 rounded-sm bg-black/75 px-1.5 py-0.5 text-neutral-100 ring-1 ring-white/10">
                   {l.name}
                 </div>
+                {(specCount[l.dept] ?? 0) > 0 && (
+                  <div
+                    className={
+                      "mt-0.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] tabular-nums ring-1 transition " +
+                      (specActivity[l.dept]
+                        ? "bg-fuchsia-500/25 ring-fuchsia-300 text-fuchsia-100"
+                        : "bg-neutral-800/80 ring-white/10 text-neutral-400")
+                    }
+                    title={`${specCount[l.dept]} specialists in ${l.dept}${specActivity[l.dept] ? ` · ${specActivity[l.dept]} just challenged` : ""}`}
+                  >
+                    <span
+                      className={
+                        "h-1 w-1 rounded-full " +
+                        (specActivity[l.dept] ? "bg-fuchsia-300 animate-pulse" : "bg-neutral-500")
+                      }
+                    />
+                    +{specCount[l.dept]}
+                  </div>
+                )}
               </div>
             );
           })}
