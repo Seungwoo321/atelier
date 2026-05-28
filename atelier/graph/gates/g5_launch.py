@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from atelier.artifacts.launch import LaunchMemo
-from atelier.graph.gates._llm import call_gate_llm
+from atelier.graph.gates._llm import call_gate_llm, verify_gate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
 
@@ -68,6 +68,11 @@ async def g5_launch(state: CompanyState) -> CompanyState:
         trace_event("g5.launch.force_dry_run", reason="no_mandate")
         artifact = artifact.model_copy(update={"dry_run": True})
 
+    verify = await verify_gate(gate="G5", dept="Marketing", artifact=artifact)
+    if verify.get("scores"):
+        state.setdefault("eval_scores", {}).update(
+            {f"G5.{k}": v for k, v in verify["scores"].items()}
+        )
     state["launch"] = artifact.model_dump()
     state.setdefault("notes", []).append(
         "g5: launch memo drafted"

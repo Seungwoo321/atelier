@@ -10,8 +10,12 @@ from pydantic import BaseModel, ValidationError
 
 from atelier.budget import QuotaGuard
 from atelier.config import load_settings
-from atelier.llm.provider import get_provider
+from atelier.eval.officer import DEPT_RUBRICS
+from atelier.llm.provider import LLMProvider, get_provider
 from atelier.observability.tracer import trace_event
+from atelier.verify.critic import critic_check
+from atelier.verify.guardrails import guardrails_check
+from atelier.verify.judge import judge_score
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -73,3 +77,71 @@ async def call_gate_llm(
         return None, False, f"parse:{type(e).__name__}"
     except Exception as e:  # noqa: BLE001
         return None, False, f"{type(e).__name__}:{str(e)[:80]}"
+
+
+def _render_artifact(artifact: BaseModel) -> str:
+    return artifact.model_dump_json(indent=2)
+
+
+async def verify_gate(
+    *,
+    gate: str,
+    dept: str,
+    artifact: BaseModel,
+    allow_emails: bool = False,
+) -> dict[str, Any]:
+    """Run the 4-stage verification on a gate artifact.
+
+    Schema is implicit (already validated). Runs Critic + Guardrails
+    deterministically; runs Judge only when `judge_enabled`. Emits
+    `verify.<gate>.passed` or `verify.<gate>.failed` and returns the
+    summary dict.
+    """
+    settings = load_settings()
+    if not settings.verify_enabled:
+        return {"skipped": True}
+
+    text = _render_artifact(artifact)
+    issues: list[str] = []
+    stage = "passed"
+
+    ok, critic_issues = critic_check(text)
+    if not ok:
+        stage = "critic"
+        issues.extend(critic_issues)
+
+    if stage == "passed":
+        ok, gr_issues = guardrails_check(text, allow_emails=allow_emails)
+        if not ok:
+            stage = "guardrails"
+            issues.extend(gr_issues)
+
+    scores: dict[str, float] = {}
+    if stage == "passed" and settings.judge_enabled:
+        provider: LLMProvider = get_provider(settings.llm_provider)
+        if await provider.healthcheck():
+            try:
+                scores = await judge_score(
+                    provider=provider,
+                    artifact_text=text,
+                    department=dept,
+                    rubric=DEPT_RUBRICS.get(dept),
+                )
+                if scores and min(scores.values()) < settings.judge_threshold:
+                    stage = "judge"
+                    issues.append(
+                        f"judge below threshold {settings.judge_threshold}: {scores}"
+                    )
+            except Exception as e:  # noqa: BLE001
+                issues.append(f"judge_error:{type(e).__name__}")
+
+    passed = stage == "passed"
+    trace_event(
+        f"verify.{gate.lower()}." + ("passed" if passed else "failed"),
+        gate=gate,
+        dept=dept,
+        stage=stage,
+        issues=issues,
+        scores=scores,
+    )
+    return {"passed": passed, "stage": stage, "issues": issues, "scores": scores}

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from atelier.artifacts.plan import Plan
-from atelier.graph.gates._llm import call_gate_llm
+from atelier.graph.gates._llm import call_gate_llm, verify_gate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
 
@@ -55,6 +55,11 @@ async def g2_plan(state: CompanyState) -> CompanyState:
         trace_event("g2.plan.fallback", reason=reason)
         artifact = _placeholder(charter)
 
+    verify = await verify_gate(gate="G2", dept="Product", artifact=artifact)
+    if verify.get("scores"):
+        state.setdefault("eval_scores", {}).update(
+            {f"G2.{k}": v for k, v in verify["scores"].items()}
+        )
     state["plan"] = artifact.model_dump()
     state.setdefault("notes", []).append(
         "g2: plan drafted" + (" (LLM)" if used_llm else " (placeholder)")

@@ -11,7 +11,7 @@ from atelier.artifacts.design import DesignMemo
 from atelier.artifacts.prd import PRD
 from atelier.budget import QuotaGuard
 from atelier.config import load_settings
-from atelier.graph.gates._llm import strip_codefence
+from atelier.graph.gates._llm import strip_codefence, verify_gate
 from atelier.graph.state import CompanyState
 from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
@@ -126,6 +126,13 @@ async def g3_design(state: CompanyState) -> CompanyState:
         trace_event("g3.design.fallback", reason=reason)
         bundle = _placeholder(title)
 
+    verify_prd = await verify_gate(gate="G3", dept="Product", artifact=bundle.prd)
+    verify_design = await verify_gate(gate="G3", dept="Design", artifact=bundle.design)
+    scores: dict[str, float] = {}
+    scores.update({f"G3.prd.{k}": v for k, v in (verify_prd.get("scores") or {}).items()})
+    scores.update({f"G3.design.{k}": v for k, v in (verify_design.get("scores") or {}).items()})
+    if scores:
+        state.setdefault("eval_scores", {}).update(scores)
     state.setdefault("prds", []).append(bundle.prd.model_dump())
     state["design"] = bundle.design.model_dump()
     state.setdefault("notes", []).append(

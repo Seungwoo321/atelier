@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from atelier.artifacts.code_review import CodeReview
-from atelier.graph.gates._llm import call_gate_llm
+from atelier.graph.gates._llm import call_gate_llm, verify_gate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
 
@@ -65,6 +65,11 @@ async def g4_build(state: CompanyState) -> CompanyState:
         trace_event("g4.build.fallback", reason=reason)
         artifact = _placeholder(feature)
 
+    verify = await verify_gate(gate="G4", dept="Engineering", artifact=artifact)
+    if verify.get("scores"):
+        state.setdefault("eval_scores", {}).update(
+            {f"G4.{k}": v for k, v in verify["scores"].items()}
+        )
     state["code_review"] = artifact.model_dump()
     state.setdefault("notes", []).append(
         "g4: code review drafted" + (" (LLM)" if used_llm else " (placeholder)")

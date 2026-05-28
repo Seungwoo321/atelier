@@ -24,6 +24,10 @@ class Settings(BaseSettings):
 
     quota_cap: float = Field(default=0.20, ge=0.0, le=1.0)
 
+    verify_enabled: bool = True
+    judge_enabled: bool = False
+    judge_threshold: float = Field(default=0.70, ge=0.0, le=1.0)
+
     artifacts_dir: Path = Path("./artifacts")
     inbox_dir: Path = Path("./inbox")
     runs_dir: Path = Path("./runs")
