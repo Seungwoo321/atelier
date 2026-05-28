@@ -42,36 +42,85 @@ async def call_gate_llm(
     artifact_cls: type[T],
     max_tokens: int = 1500,
     quota_frac: float = 0.01,
+    reflexion: bool = True,
 ) -> tuple[T | None, bool, str | None]:
     """Call provider, parse JSON, validate into `artifact_cls`.
 
     Returns `(artifact, used_llm, fallback_reason)`. When `used_llm` is False,
     `artifact` is None and `fallback_reason` is set; callers should produce a
     placeholder. Emits `quota.charge` on success.
+
+    When `reflexion` is true and ATELIER_REFLEXION_CAP > 0, deterministic
+    critic failures trigger up to `cap` retries with the critique appended
+    to the prompt. Each retry incurs another quota charge.
     """
     settings = load_settings()
     try:
         provider = get_provider(settings.llm_provider)
         if not await provider.healthcheck():
             return None, False, "provider_unconfigured"
-        resp = await provider.complete(
-            system=system,
-            prompt=prompt,
-            model=model,
-            max_tokens=max_tokens,
-        )
-        raw: Any = json.loads(strip_codefence(resp.text))
-        artifact = artifact_cls.model_validate(raw)
-        QuotaGuard(cap=settings.quota_cap).charge(dept, quota_frac)
-        trace_event(
-            "quota.charge",
-            dept=dept,
-            role=role,
-            gate=gate,
-            frac=quota_frac,
-            input_tokens=resp.input_tokens,
-            output_tokens=resp.output_tokens,
-        )
+
+        cap = settings.reflexion_cap if reflexion else 0
+        critique: str | None = None
+        artifact: T | None = None
+
+        for attempt in range(cap + 1):
+            effective_prompt = prompt
+            if critique:
+                effective_prompt = (
+                    prompt
+                    + "\n\nThe previous draft was rejected by the Atelier Critic. "
+                    "Address every issue below and reply with a fresh JSON object only.\n"
+                    f"Critic issues:\n- " + "\n- ".join([critique])
+                )
+            resp = await provider.complete(
+                system=system,
+                prompt=effective_prompt,
+                model=model,
+                max_tokens=max_tokens,
+            )
+            raw: Any = json.loads(strip_codefence(resp.text))
+            artifact = artifact_cls.model_validate(raw)
+            QuotaGuard(cap=settings.quota_cap).charge(dept, quota_frac)
+            trace_event(
+                "quota.charge",
+                dept=dept,
+                role=role,
+                gate=gate,
+                frac=quota_frac,
+                input_tokens=resp.input_tokens,
+                output_tokens=resp.output_tokens,
+                attempt=attempt + 1,
+            )
+
+            if cap == 0:
+                break
+            text = artifact.model_dump_json(indent=2)
+            ok, issues = critic_check(text)
+            if ok:
+                if attempt > 0:
+                    trace_event(
+                        "reflexion.recovered", gate=gate, dept=dept, attempt=attempt + 1
+                    )
+                break
+            critique = "; ".join(issues)
+            if attempt == cap:
+                trace_event(
+                    "reflexion.exhausted",
+                    gate=gate,
+                    dept=dept,
+                    issues=issues,
+                    attempts=attempt + 1,
+                )
+                break
+            trace_event(
+                "reflexion.retry",
+                gate=gate,
+                dept=dept,
+                attempt=attempt + 1,
+                issues=issues,
+            )
+
         return artifact, True, None
     except (ValidationError, json.JSONDecodeError) as e:
         return None, False, f"parse:{type(e).__name__}"

@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     verify_enabled: bool = True
     judge_enabled: bool = False
     judge_threshold: float = Field(default=0.70, ge=0.0, le=1.0)
+    reflexion_cap: int = Field(default=1, ge=0, le=3)
 
     artifacts_dir: Path = Path("./artifacts")
     inbox_dir: Path = Path("./inbox")
