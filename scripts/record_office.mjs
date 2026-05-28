@@ -1,10 +1,11 @@
-import { chromium } from "/Users/mzc02-swlee/atelier/web/node_modules/playwright/index.mjs";
+import { createRequire } from "node:module";
 import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+const { chromium } = createRequire(path.join(ROOT, "web", "package.json"))("playwright");
 const EVENTS = path.join(ROOT, "runs/events.jsonl");
 const OUT_DIR = path.join(ROOT, "docs/office-frames");
 
