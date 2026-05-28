@@ -37,6 +37,12 @@ interface Launch {
   success_metrics?: string[];
   dry_run?: boolean;
 }
+interface Council {
+  decision?: string;
+  rationale?: string;
+  votes?: Record<string, string>;
+  deciding_vote_used?: boolean;
+}
 interface Result {
   current_gate?: string;
   charter?: Charter;
@@ -44,6 +50,7 @@ interface Result {
   design?: Design;
   review?: Review;
   launch?: Launch;
+  council?: Council;
   notes?: string[];
 }
 interface EventRow {
@@ -451,6 +458,39 @@ export default async function DashboardPage() {
                     >
                       <Bullets label="channels" items={data.launch.channels} />
                       <Bullets label="success metrics" items={data.launch.success_metrics} />
+                    </Card>
+                  )}
+                  {data.council && data.council.votes && (
+                    <Card
+                      id="council"
+                      title="Cross-Dept Council"
+                      subtitle={`${data.council.decision ?? "?"} — ${data.council.rationale ?? ""}`}
+                      badge={data.council.deciding_vote_used ? "tie-break" : "plurality"}
+                    >
+                      <div>
+                        <div className="text-[10px] uppercase tracking-widest text-neutral-500">
+                          votes
+                        </div>
+                        <ul className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1">
+                          {Object.entries(data.council.votes).map(([voter, choice]) => (
+                            <li key={voter} className="flex items-center justify-between">
+                              <span className="truncate text-neutral-300">{voter}</span>
+                              <span
+                                className={
+                                  "ml-2 rounded px-1.5 py-px font-mono text-[10px] " +
+                                  (choice === "ship"
+                                    ? "bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30"
+                                    : choice === "rework"
+                                      ? "bg-rose-500/15 text-rose-200 ring-1 ring-rose-400/30"
+                                      : "bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/30")
+                                }
+                              >
+                                {choice}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </Card>
                   )}
                 </div>

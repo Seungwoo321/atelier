@@ -8,6 +8,7 @@ from pathlib import Path
 
 from atelier.config import Settings
 from atelier.graph.build import build_graph
+from atelier.graph.gates._council import run_launch_council
 from atelier.graph.state import CompanyState
 from atelier.memory.org import OrgMemory
 from atelier.memory.project import ProjectMemory
@@ -31,6 +32,10 @@ async def run_request(settings: Settings, request: str, project_id: str = "defau
     graph = build_graph(runs_dir=None)
     state: CompanyState = {"request": request}
     final: dict = await graph.ainvoke(state)
+
+    council = await run_launch_council(final)
+    if council is not None:
+        final["council"] = council
 
     out_dir = settings.artifacts_dir / project_id
     out_dir.mkdir(parents=True, exist_ok=True)

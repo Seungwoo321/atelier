@@ -97,6 +97,12 @@ Copy `.env.example` to `.env` and adjust:
 | `ATELIER_INBOX_DIR` | `./inbox` | Where inbox markdown files live |
 | `ATELIER_RUNS_DIR` | `./runs` | Logs + SQLite checkpointer |
 | `ATELIER_LOG_LEVEL` | `INFO` | Structured log level |
+| `ATELIER_VERIFY_ENABLED` | `true` | Run Schema → Critic → Guardrails after every gate |
+| `ATELIER_JUDGE_ENABLED` | `false` | LLM-as-judge stage (doubles per-gate quota) |
+| `ATELIER_JUDGE_THRESHOLD` | `0.70` | Minimum rubric score required to pass judge |
+| `ATELIER_REFLEXION_CAP` | `1` | Retry attempts when Critic fails (0–3) |
+| `ATELIER_SPECIALIST_DEBATE_ENABLED` | `false` | Dispatch UX + UI Designer specialists in G3 |
+| `ATELIER_COUNCIL_ENABLED` | `false` | End-of-run Cross-Dept Council vote on launch readiness |
 
 Optional integrations: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 

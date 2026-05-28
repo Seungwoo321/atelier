@@ -97,6 +97,12 @@ CLI 데모:
 | `ATELIER_INBOX_DIR` | `./inbox` | 인박스 마크다운 디렉터리 |
 | `ATELIER_RUNS_DIR` | `./runs` | 로그 및 SQLite 체크포인터 |
 | `ATELIER_LOG_LEVEL` | `INFO` | 구조화된 로그 레벨 |
+| `ATELIER_VERIFY_ENABLED` | `true` | 각 게이트 산출물에 Schema → Critic → Guardrails 검증 실행 |
+| `ATELIER_JUDGE_ENABLED` | `false` | LLM-as-judge 단계 (게이트당 쿼터 2배) |
+| `ATELIER_JUDGE_THRESHOLD` | `0.70` | Judge 통과 최소 평균 점수 |
+| `ATELIER_REFLEXION_CAP` | `1` | Critic 실패 시 재시도 횟수 (0–3) |
+| `ATELIER_SPECIALIST_DEBATE_ENABLED` | `false` | G3에서 UX + UI Designer 특수직 디스패치 |
+| `ATELIER_COUNCIL_ENABLED` | `false` | 실행 종료 시 부서 간 의회 표결 |
 
 선택적 통합: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 
