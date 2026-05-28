@@ -59,6 +59,7 @@ interface EventRow {
   dept?: string;
   frac?: number;
   score?: number;
+  scores?: Record<string, number>;
   gate?: string;
   project?: string;
   stage?: string;
@@ -180,6 +181,13 @@ function verifyByGate(events: EventRow[]): Record<string, VerifyState> {
 function gateScores(events: EventRow[]): Record<string, number> {
   const out: Record<string, number> = {};
   for (const e of events) {
+    const v = /^verify\.g([1-5])\.(?:passed|failed)$/.exec(e.event);
+    if (v && e.scores && Object.keys(e.scores).length > 0) {
+      const vals = Object.values(e.scores);
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      out[`G${v[1]}`] = avg;
+      continue;
+    }
     const m = /^g([1-5])\..*judge/.exec(e.event);
     if (m && typeof e.score === "number") out[`G${m[1]}`] = e.score;
   }
@@ -330,14 +338,15 @@ export default async function DashboardPage() {
                           )}
                           {scores[g.id] !== undefined && (
                             <span
+                              title="LLM-judge rubric average (0–1)"
                               className={
                                 "rounded px-1 py-px tabular-nums " +
-                                (scores[g.id] >= 8
+                                (scores[g.id] >= 0.7
                                   ? "bg-emerald-500/20 text-emerald-200 ring-1 ring-emerald-400/30"
                                   : "bg-rose-500/20 text-rose-200 ring-1 ring-rose-400/30")
                               }
                             >
-                              judge {scores[g.id].toFixed(1)}
+                              judge {scores[g.id].toFixed(2)}
                             </span>
                           )}
                           {verify[g.id] && (
