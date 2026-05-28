@@ -56,6 +56,8 @@ interface EventRow {
   project?: string;
   stage?: string;
   issues?: string[];
+  attempt?: number;
+  attempts?: number;
 }
 
 async function loadResults(): Promise<Array<{ project: string; data: Result }>> {
@@ -127,6 +129,28 @@ interface VerifyState {
   passed: boolean;
   stage: string;
   issues: string[];
+}
+
+interface ReflexionStat {
+  attempts: number;
+  recovered: boolean;
+  exhausted: boolean;
+}
+
+function reflexionByGate(events: EventRow[]): Record<string, ReflexionStat> {
+  const out: Record<string, ReflexionStat> = {};
+  for (const e of events) {
+    if (typeof e.gate !== "string") continue;
+    if (e.event === "reflexion.retry" || e.event === "reflexion.recovered" || e.event === "reflexion.exhausted") {
+      const cur = out[e.gate] ?? { attempts: 0, recovered: false, exhausted: false };
+      const a = typeof e.attempt === "number" ? e.attempt : (typeof e.attempts === "number" ? e.attempts : 0);
+      cur.attempts = Math.max(cur.attempts, a);
+      if (e.event === "reflexion.recovered") cur.recovered = true;
+      if (e.event === "reflexion.exhausted") cur.exhausted = true;
+      out[e.gate] = cur;
+    }
+  }
+  return out;
 }
 
 function verifyByGate(events: EventRow[]): Record<string, VerifyState> {
@@ -202,6 +226,7 @@ export default async function DashboardPage() {
   const timings = gateTimings(events);
   const scores = gateScores(events);
   const verify = verifyByGate(events);
+  const reflexion = reflexionByGate(events);
   const ranges = gateRanges(events);
   const gateColor: Record<string, string> = {
     G1: "bg-amber-400/80",
@@ -323,6 +348,25 @@ export default async function DashboardPage() {
                               }
                             >
                               {verify[g.id].passed ? "✓" : "✗ " + verify[g.id].stage}
+                            </span>
+                          )}
+                          {reflexion[g.id] && reflexion[g.id].attempts > 1 && (
+                            <span
+                              title={
+                                reflexion[g.id].recovered
+                                  ? `Reflexion recovered after ${reflexion[g.id].attempts} attempts`
+                                  : reflexion[g.id].exhausted
+                                    ? `Reflexion exhausted after ${reflexion[g.id].attempts} attempts`
+                                    : `Reflexion retried (${reflexion[g.id].attempts} attempts)`
+                              }
+                              className={
+                                "rounded px-1 py-px font-mono " +
+                                (reflexion[g.id].recovered
+                                  ? "bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/30"
+                                  : "bg-rose-500/10 text-rose-200 ring-1 ring-rose-400/30")
+                              }
+                            >
+                              ↻{reflexion[g.id].attempts}
                             </span>
                           )}
                         </div>

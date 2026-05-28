@@ -11,6 +11,7 @@ from atelier.graph.build import build_graph
 from atelier.graph.state import CompanyState
 from atelier.memory.org import OrgMemory
 from atelier.memory.project import ProjectMemory
+from atelier.memory.role import RoleMemory
 from atelier.observability.tracer import configure as configure_logging
 from atelier.observability.tracer import trace_event
 from atelier.protocols.janitor import JanitorMemo
@@ -39,9 +40,34 @@ async def run_request(settings: Settings, request: str, project_id: str = "defau
     pm.set("result", final)
 
     _write_janitor_memo(settings.runs_dir, project_id, final)
+    _record_role_memory(settings.runs_dir, project_id, final)
 
     trace_event("run.done", project_id=project_id, gate=final.get("current_gate"))
     return final
+
+
+def _record_role_memory(runs_dir: Path, project_id: str, final: dict) -> None:
+    notes = "; ".join(final.get("notes") or [])
+    title = (final.get("charter") or {}).get("title", "")
+    leads = [
+        ("Chief of Staff", "charter"),
+        ("PM Lead", "plan"),
+        ("Design Lead", "design"),
+        ("Eng Manager", "code_review"),
+        ("Mkt Lead", "launch"),
+    ]
+    for role, key in leads:
+        if not final.get(key):
+            continue
+        fact = (
+            f"[{project_id}] shipped {key} for '{title}'. "
+            f"current_gate={final.get('current_gate', '?')}; notes={notes[:200]}"
+        )
+        try:
+            RoleMemory(runs_dir, role).remember(fact, tags=[project_id, key])
+        except Exception:  # noqa: BLE001
+            continue
+    trace_event("memory.role.updated", project_id=project_id, roles=[r for r, _ in leads])
 
 
 def _write_janitor_memo(runs_dir: Path, project_id: str, final: dict) -> None:
