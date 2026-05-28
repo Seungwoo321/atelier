@@ -9,6 +9,8 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](#license)
 [![Status](https://img.shields.io/badge/status-v1.0-green.svg)](#)
 
+**English** · [한국어](README.ko.md)
+
 </div>
 
 ![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r9-office.png)
