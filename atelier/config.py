@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     reflexion_cap: int = Field(default=1, ge=0, le=3)
     specialist_debate_enabled: bool = False
     council_enabled: bool = False
+    role_memory_enabled: bool = True
+    role_memory_max_facts: int = Field(default=5, ge=0, le=20)
 
     artifacts_dir: Path = Path("./artifacts")
     inbox_dir: Path = Path("./inbox")

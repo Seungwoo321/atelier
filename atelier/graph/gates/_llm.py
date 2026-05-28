@@ -12,6 +12,7 @@ from atelier.budget import QuotaGuard
 from atelier.config import load_settings
 from atelier.eval.officer import DEPT_RUBRICS
 from atelier.llm.provider import LLMProvider, get_provider
+from atelier.memory.role import RoleMemory
 from atelier.observability.tracer import trace_event
 from atelier.verify.critic import critic_check
 from atelier.verify.guardrails import guardrails_check
@@ -21,6 +22,35 @@ T = TypeVar("T", bound=BaseModel)
 
 _FENCE = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.S)
 _BARE = re.compile(r"\{.*\}", re.S)
+
+
+def _recall_role_memory(settings: Any, gate: str, dept: str, role: str) -> str:
+    if not settings.role_memory_enabled:
+        return ""
+    cap = settings.role_memory_max_facts
+    if cap <= 0:
+        return ""
+    try:
+        store = RoleMemory(settings.runs_dir, role).recall()
+    except Exception:
+        return ""
+    if not store:
+        return ""
+    facts = list(store.keys())[-cap:]
+    if not facts:
+        return ""
+    trace_event(
+        "memory.role.recalled",
+        gate=gate,
+        dept=dept,
+        role=role,
+        facts=len(facts),
+    )
+    bullets = "\n".join(f"- {fact}" for fact in facts)
+    return (
+        f"Prior runs by {role} (most recent last):\n{bullets}\n\n"
+        "Use these as background only; do not copy verbatim.\n\n"
+    )
 
 
 def strip_codefence(text: str) -> str:
@@ -60,15 +90,19 @@ async def call_gate_llm(
         if not await provider.healthcheck():
             return None, False, "provider_unconfigured"
 
+        memory_block = _recall_role_memory(settings, gate, dept, role)
+
         cap = settings.reflexion_cap if reflexion else 0
         critique: str | None = None
         artifact: T | None = None
 
         for attempt in range(cap + 1):
             effective_prompt = prompt
+            if memory_block:
+                effective_prompt = memory_block + effective_prompt
             if critique:
                 effective_prompt = (
-                    prompt
+                    effective_prompt
                     + "\n\nThe previous draft was rejected by the Atelier Critic. "
                     "Address every issue below and reply with a fresh JSON object only.\n"
                     f"Critic issues:\n- " + "\n- ".join([critique])

@@ -103,6 +103,8 @@ CLI 데모:
 | `ATELIER_REFLEXION_CAP` | `1` | Critic 실패 시 재시도 횟수 (0–3) |
 | `ATELIER_SPECIALIST_DEBATE_ENABLED` | `false` | G3에서 UX + UI Designer 특수직 디스패치 |
 | `ATELIER_COUNCIL_ENABLED` | `false` | 실행 종료 시 부서 간 의회 표결 |
+| `ATELIER_ROLE_MEMORY_ENABLED` | `true` | 각 리드의 이전 실행 사실을 게이트 프롬프트에 주입 |
+| `ATELIER_ROLE_MEMORY_MAX_FACTS` | `5` | 역할당 포함할 최신 사실 개수 (0–20) |
 
 선택적 통합: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 

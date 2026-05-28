@@ -103,6 +103,8 @@ Copy `.env.example` to `.env` and adjust:
 | `ATELIER_REFLEXION_CAP` | `1` | Retry attempts when Critic fails (0–3) |
 | `ATELIER_SPECIALIST_DEBATE_ENABLED` | `false` | Dispatch UX + UI Designer specialists in G3 |
 | `ATELIER_COUNCIL_ENABLED` | `false` | End-of-run Cross-Dept Council vote on launch readiness |
+| `ATELIER_ROLE_MEMORY_ENABLED` | `true` | Inject each lead's prior-run facts into their gate prompt |
+| `ATELIER_ROLE_MEMORY_MAX_FACTS` | `5` | Most-recent facts per role to include (0–20) |
 
 Optional integrations: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 
