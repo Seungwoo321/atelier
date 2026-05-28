@@ -92,6 +92,12 @@ export default function Home() {
             >
               Open dashboard
             </Link>
+            <Link
+              href="/roster"
+              className="rounded-md border border-neutral-700 px-5 py-3 font-medium hover:bg-neutral-900"
+            >
+              See the roster
+            </Link>
           </div>
           <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
             {STATS.map(([num, label]) => (
@@ -296,6 +302,10 @@ export default function Home() {
       <footer className="mt-24 flex items-center justify-between border-t border-neutral-800 pt-6 text-sm text-neutral-500">
         <span>Sprites © LimeZu — Modern Interiors (free, non-commercial).</span>
         <span>
+          <Link href="/roster" className="hover:text-white">
+            roster
+          </Link>
+          <span className="text-neutral-700">·</span>
           <Link href="/office" className="hover:text-white">
             office
           </Link>{" "}
