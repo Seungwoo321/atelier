@@ -36,13 +36,13 @@ Atelier는 소프트웨어 회사를 역할 특화 에이전트의 방향성 그
 
 - **9명의 부서 리드** (Opus 4.7) + **19명의 스페셜리스트** (Sonnet 4.6) — 조합 가능한 `Role` 객체로 정의.
 - **5개의 전략 게이트**를 LangGraph로 배선, 선택적 SQLite 체크포인팅 지원.
-- **4개의 의사결정 프로토콜** — Reflexion(최대 3회, 10% 이상 개선), Bounded Debate(N=2, 30% 이상 변경률), Cross-Dept Council(PM Lead 결정투표, 20% 이상 이견), Janitor Memo.
+- **4개의 의사결정 프로토콜, 모두 런타임에 결선** — Reflexion 재시도(게이트별, 상한, 비판이 다음 시도 프롬프트에 주입), G2/G3/G4 Bounded Debate(UX+UI / PM Specialist+Market Researcher / Tech Lead+Security가 리드에 도전), 실행 종료 Cross-Dept Council(5인 리드 투표, PM Lead 결정투표), 실행 종료 Janitor Memo(`runs/`에 보존).
 - **4단계 검증** — Schema(Pydantic) → Critic(결정론) → Judge(LLM 루브릭) → Guardrails(PII/시크릿).
-- **3계층 메모리** — Org(읽기 전용) / Project(공유) / Role(자기 편집).
+- **3계층 메모리 + 자동 회상** — Org(읽기 전용) / Project(공유) / Role(자기 편집, 각 리드의 이전 실행 사실을 다음 게이트 프롬프트에 자동 주입).
 - **구독 쿼터 예산 모델** — 토큰당 달러가 아닌 일일 구독 쿼터의 비율로 회계(`QuotaGuard`).
 - **MCP 도구 레지스트리** — 기본 13개 서버를 부서별로 매핑.
 - **선택적 통합** — Langfuse 트레이싱, Temporal durable workflows, E2B 샌드박스 실행.
-- **웹 대시보드** — Next.js 16 + React 19, Modern Interiors 스프라이트 기반 PixiJS 오피스 뷰. 부서 리드를 클릭하면 라이브 이벤트 로그가 필터링됩니다.
+- **웹 대시보드** — Next.js 16 + React 19. PixiJS 오피스 뷰(Modern Interiors 스프라이트)는 각 리드의 스페셜리스트 수와 `specialist.*.challenge` 펄스를 표시합니다. `/dashboard`는 `runs/events.jsonl`에서 직접 verify ✓/✗, Reflexion 재시도, Judge 루브릭 평균, 최신 Cross-Dept Council 표결을 집계합니다. 활성 실행은 UI에서 시작/취소할 수 있습니다.
 - **Claude Code 플러그인** — Claude Code 내부에서 게이트 승인을 위한 슬래시 커맨드 제공.
 
 ## 설치

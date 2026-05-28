@@ -36,13 +36,13 @@ All callers depend on a single `LLMProvider` Protocol — these two are the only
 
 - **9 department leads** (Opus 4.7) + **19 specialists** (Sonnet 4.6), defined as composable `Role` objects.
 - **5 strategic gates** wired as a LangGraph with optional SQLite checkpointing.
-- **4 decision protocols** — Reflexion (cap 3, ≥10% improvement), Bounded Debate (N=2, ≥30% change rate), Cross-Dept Council (PM Lead deciding vote, ≥20% disagreement), Janitor Memo.
+- **4 decision protocols, all wired into the runtime** — Reflexion retries (per-gate, capped, critique injected into the next attempt), Bounded Debate in G2/G3/G4 (UX+UI / PM Specialist+Market Researcher / Tech Lead+Security challenge the lead), end-of-run Cross-Dept Council (5 leads vote, PM Lead tie-break), per-run Janitor Memo persisted to `runs/`.
 - **4-stage verification** — Schema (Pydantic) → Critic (deterministic) → Judge (LLM rubric) → Guardrails (PII/secrets).
-- **3-tier memory** — Org (read-only) / Project (shared) / Role (self-edit).
+- **3-tier memory with recall** — Org (read-only) / Project (shared) / Role (self-edit, with each lead's prior-run facts injected into the next gate prompt).
 - **Subscription-quota budget** — fraction-based accounting (`QuotaGuard`), not USD per token.
 - **MCP tool registry** — 13 servers mapped to departments out of the box.
 - **Optional integrations** — Langfuse tracing, Temporal durable workflows, E2B sandboxed code execution.
-- **Web dashboard** — Next.js 16 + React 19, with a PixiJS office view rendered on Modern Interiors sprites; click any dept lead to filter the live event log.
+- **Web dashboard** — Next.js 16 + React 19. PixiJS office view (Modern Interiors sprites) shows each lead's specialist count and pulses on `specialist.*.challenge`. `/dashboard` aggregates verify ✓/✗, reflexion retries, judge rubric averages, and the latest Cross-Dept Council ballot straight from `runs/events.jsonl`. Active runs can be started and cancelled from the UI.
 - **Claude Code plugin** — slash commands for gate approval inside Claude Code.
 
 ## Installation

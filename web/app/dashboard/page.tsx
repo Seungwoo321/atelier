@@ -66,6 +66,12 @@ interface EventRow {
   issues?: string[];
   attempt?: number;
   attempts?: number;
+  voter?: string;
+  choice?: string;
+  decision?: string;
+  rationale?: string;
+  votes?: Record<string, string>;
+  deciding_vote_used?: boolean;
 }
 
 async function loadResults(): Promise<Array<{ project: string; data: Result }>> {
@@ -232,6 +238,32 @@ function gateTimings(events: EventRow[]): Record<string, string> {
   return out;
 }
 
+function latestCouncilFromEvents(events: EventRow[]): (Council & { ts?: string }) | null {
+  let decisionIdx = -1;
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (events[i].event === "council.decision") {
+      decisionIdx = i;
+      break;
+    }
+  }
+  if (decisionIdx === -1) return null;
+  const d = events[decisionIdx];
+  const votes: Record<string, string> = d.votes ? { ...d.votes } : {};
+  if (Object.keys(votes).length === 0) {
+    for (let i = decisionIdx - 1; i >= 0 && i >= decisionIdx - 12; i--) {
+      const e = events[i];
+      if (e.event === "council.vote" && e.voter && e.choice) votes[e.voter] = e.choice;
+    }
+  }
+  return {
+    decision: d.decision,
+    rationale: d.rationale,
+    votes,
+    deciding_vote_used: d.deciding_vote_used,
+    ts: d.ts,
+  };
+}
+
 export default async function DashboardPage() {
   const [results, events] = await Promise.all([loadResults(), loadEvents()]);
   const recent = events.slice(-12).reverse();
@@ -243,6 +275,8 @@ export default async function DashboardPage() {
   const verify = verifyByGate(events);
   const reflexion = reflexionByGate(events);
   const ranges = gateRanges(events);
+  const hasResultCouncil = results.some((r) => r.data.council?.votes);
+  const eventCouncil = !hasResultCouncil ? latestCouncilFromEvents(events) : null;
   const gateColor: Record<string, string> = {
     G1: "bg-amber-400/80",
     G2: "bg-purple-400/80",
@@ -272,6 +306,55 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <section className="space-y-6">
+          {eventCouncil && eventCouncil.votes && Object.keys(eventCouncil.votes).length > 0 && (
+            <article className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-6">
+              <header className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-cyan-300/70">
+                    from events.jsonl
+                  </p>
+                  <h2 className="text-lg font-semibold text-cyan-100">Latest Cross-Dept Council</h2>
+                  <p className="mt-1 text-sm text-neutral-300">
+                    <span
+                      className={
+                        "rounded px-1.5 py-px font-mono text-xs " +
+                        (eventCouncil.decision === "ship"
+                          ? "bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30"
+                          : eventCouncil.decision === "rework"
+                            ? "bg-rose-500/15 text-rose-200 ring-1 ring-rose-400/30"
+                            : "bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/30")
+                      }
+                    >
+                      {eventCouncil.decision ?? "?"}
+                    </span>
+                    <span className="ml-2 text-neutral-400">{eventCouncil.rationale}</span>
+                  </p>
+                </div>
+                <span className="rounded-full bg-cyan-500/15 px-2.5 py-1 font-mono text-[10px] text-cyan-200 ring-1 ring-cyan-400/30">
+                  {eventCouncil.deciding_vote_used ? "tie-break" : "plurality"}
+                </span>
+              </header>
+              <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1 sm:grid-cols-3">
+                {Object.entries(eventCouncil.votes).map(([voter, choice]) => (
+                  <li key={voter} className="flex items-center justify-between">
+                    <span className="truncate text-neutral-300">{voter}</span>
+                    <span
+                      className={
+                        "ml-2 rounded px-1.5 py-px font-mono text-[10px] " +
+                        (choice === "ship"
+                          ? "bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30"
+                          : choice === "rework"
+                            ? "bg-rose-500/15 text-rose-200 ring-1 ring-rose-400/30"
+                            : "bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/30")
+                      }
+                    >
+                      {choice}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
           {results.length === 0 ? (
             <p className="text-neutral-400">
               No runs yet. Try{" "}
