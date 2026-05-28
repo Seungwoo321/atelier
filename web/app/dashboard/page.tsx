@@ -53,6 +53,8 @@ interface EventRow {
   score?: number;
   gate?: string;
   project?: string;
+  stage?: string;
+  issues?: string[];
 }
 
 async function loadResults(): Promise<Array<{ project: string; data: Result }>> {
@@ -120,6 +122,29 @@ function quotaByDept(events: EventRow[]): Array<{ dept: string; frac: number }> 
     .sort((a, b) => b.frac - a.frac);
 }
 
+interface VerifyState {
+  passed: boolean;
+  stage: string;
+  issues: string[];
+}
+
+function verifyByGate(events: EventRow[]): Record<string, VerifyState> {
+  const out: Record<string, VerifyState> = {};
+  for (const e of events) {
+    const m = /^verify\.g([1-5])\.(passed|failed)$/.exec(e.event);
+    if (!m) continue;
+    const key = `G${m[1]}`;
+    const passed = m[2] === "passed";
+    if (out[key] && out[key].passed && !passed) continue;
+    out[key] = {
+      passed,
+      stage: e.stage ?? (passed ? "passed" : "failed"),
+      issues: e.issues ?? [],
+    };
+  }
+  return out;
+}
+
 function gateScores(events: EventRow[]): Record<string, number> {
   const out: Record<string, number> = {};
   for (const e of events) {
@@ -175,6 +200,7 @@ export default async function DashboardPage() {
   const deptQuota = quotaByDept(events);
   const timings = gateTimings(events);
   const scores = gateScores(events);
+  const verify = verifyByGate(events);
   const ranges = gateRanges(events);
   const gateColor: Record<string, string> = {
     G1: "bg-amber-400/80",
@@ -279,6 +305,23 @@ export default async function DashboardPage() {
                               }
                             >
                               judge {scores[g.id].toFixed(1)}
+                            </span>
+                          )}
+                          {verify[g.id] && (
+                            <span
+                              title={
+                                verify[g.id].passed
+                                  ? "verify: passed (schema, critic, guardrails)"
+                                  : `verify failed at ${verify[g.id].stage}: ${verify[g.id].issues.join("; ")}`
+                              }
+                              className={
+                                "rounded px-1 py-px font-semibold " +
+                                (verify[g.id].passed
+                                  ? "bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-400/30"
+                                  : "bg-rose-500/20 text-rose-200 ring-1 ring-rose-400/30")
+                              }
+                            >
+                              {verify[g.id].passed ? "✓" : "✗ " + verify[g.id].stage}
                             </span>
                           )}
                         </div>
