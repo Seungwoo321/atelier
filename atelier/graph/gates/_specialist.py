@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+import json
+from typing import TypeVar
+
+from pydantic import BaseModel, ValidationError
+
 from atelier.budget import QuotaGuard
 from atelier.config import load_settings
 from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
+from atelier.protocols.bounded_debate import _change_rate
 
 SPECIALIST_MODEL = "claude-sonnet-4-6"
+M = TypeVar("M", bound=BaseModel)
 
 
 async def specialist_challenge(
@@ -74,3 +81,85 @@ async def specialist_challenge(
             error=f"{type(e).__name__}:{str(e)[:80]}",
         )
         return None
+
+
+async def lead_revision_after_debate(
+    *,
+    gate: str,
+    dept: str,
+    lead_role: str,
+    model: str,
+    system: str,
+    base_prompt: str,
+    draft: M,
+    artifact_cls: type[M],
+    specialists: list[tuple[str, str, str]],
+    revision_quota_frac: float = 0.01,
+    specialist_quota_frac: float = 0.005,
+    max_tokens: int = 1800,
+) -> M:
+    """Run one bounded-debate round: each specialist critiques `draft`, then the
+    lead is asked to revise. Returns the revised artifact, or the original
+    draft if the provider is unreachable or parsing fails. Emits
+    `{gate.lower()}.{dept.lower()}.debate` with change_rate.
+    """
+    settings = load_settings()
+    draft_text = draft.model_dump_json(indent=2)
+    critiques: list[str] = []
+    for name, sdept, mandate in specialists:
+        crit = await specialist_challenge(
+            gate=gate,
+            dept=sdept,
+            specialist_name=name,
+            mandate=mandate,
+            artifact_text=draft_text,
+            quota_frac=specialist_quota_frac,
+        )
+        if crit:
+            critiques.append(f"## {name}\n{crit}")
+    if not critiques:
+        return draft
+    try:
+        provider = get_provider(settings.llm_provider)
+        if not await provider.healthcheck():
+            return draft
+        resp = await provider.complete(
+            system=system + " Revise the prior draft to address every specialist critique.",
+            prompt=(
+                base_prompt
+                + "\n\nPrior draft (JSON):\n"
+                + draft_text
+                + "\n\nSpecialist critiques:\n"
+                + "\n\n".join(critiques)
+                + "\n\nReturn the revised JSON object only."
+            ),
+            model=model,
+            max_tokens=max_tokens,
+        )
+        raw = json.loads(resp.text.strip().removeprefix("```json").removesuffix("```").strip())
+        revised = artifact_cls.model_validate(raw)
+        QuotaGuard(cap=settings.quota_cap).charge(dept, revision_quota_frac)
+        rate = _change_rate(draft_text, revised.model_dump_json(indent=2))
+        trace_event(
+            f"{gate.lower()}.{dept.lower()}.debate",
+            dept=dept,
+            role=lead_role,
+            rounds=1,
+            change_rate=round(rate, 3),
+            specialists=[n for n, _, _ in specialists],
+            input_tokens=resp.input_tokens,
+            output_tokens=resp.output_tokens,
+        )
+        return revised
+    except (ValidationError, json.JSONDecodeError) as e:
+        trace_event(
+            f"{gate.lower()}.{dept.lower()}.debate.parse_error",
+            error=f"{type(e).__name__}",
+        )
+        return draft
+    except Exception as e:
+        trace_event(
+            f"{gate.lower()}.{dept.lower()}.debate.error",
+            error=f"{type(e).__name__}:{str(e)[:80]}",
+        )
+        return draft

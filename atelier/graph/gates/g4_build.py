@@ -3,11 +3,26 @@
 from __future__ import annotations
 
 from atelier.artifacts.code_review import CodeReview
+from atelier.config import load_settings
 from atelier.graph.gates._llm import call_gate_llm, verify_gate
+from atelier.graph.gates._specialist import lead_revision_after_debate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
 
 ENG_MODEL = "claude-opus-4-7"
+
+_SPECIALISTS = [
+    (
+        "Tech Lead",
+        "Engineering",
+        "Verify architectural decisions, test coverage, and module boundaries.",
+    ),
+    (
+        "Security Engineer",
+        "Engineering",
+        "Surface auth, input-validation, and secret-handling risks.",
+    ),
+]
 
 SYSTEM_PROMPT = (
     "You are the Eng Manager at Atelier, partnering with the Tech Lead and QA "
@@ -39,24 +54,25 @@ async def g4_build(state: CompanyState) -> CompanyState:
     trace_event("g4.build.start", dept="Engineering", feature=feature)
 
     prd_blob = prds[0] if prds else {}
+    base_prompt = (
+        "Plan:\n"
+        f"title: {feature}\n"
+        "milestones:\n- "
+        + "\n- ".join(plan.get("milestones", []) or ["-"])
+        + "\n\nPRD:\n"
+        f"feature: {prd_blob.get('feature', '')}\n"
+        "acceptance_criteria:\n- "
+        + "\n- ".join(prd_blob.get("acceptance_criteria", []) or ["-"])
+        + "\n\nDesign IA:\n- "
+        + "\n- ".join(design.get("information_architecture", []) or ["-"])
+    )
     artifact, used_llm, reason = await call_gate_llm(
         gate="G4",
         dept="Engineering",
         role="Eng Manager",
         model=ENG_MODEL,
         system=SYSTEM_PROMPT,
-        prompt=(
-            "Plan:\n"
-            f"title: {feature}\n"
-            "milestones:\n- "
-            + "\n- ".join(plan.get("milestones", []) or ["-"])
-            + "\n\nPRD:\n"
-            f"feature: {prd_blob.get('feature', '')}\n"
-            "acceptance_criteria:\n- "
-            + "\n- ".join(prd_blob.get("acceptance_criteria", []) or ["-"])
-            + "\n\nDesign IA:\n- "
-            + "\n- ".join(design.get("information_architecture", []) or ["-"])
-        ),
+        prompt=base_prompt,
         artifact_cls=CodeReview,
         max_tokens=1500,
         quota_frac=0.02,
@@ -64,6 +80,19 @@ async def g4_build(state: CompanyState) -> CompanyState:
     if artifact is None:
         trace_event("g4.build.fallback", reason=reason)
         artifact = _placeholder(feature)
+    elif load_settings().specialist_debate_enabled:
+        artifact = await lead_revision_after_debate(
+            gate="G4",
+            dept="Engineering",
+            lead_role="Eng Manager",
+            model=ENG_MODEL,
+            system=SYSTEM_PROMPT,
+            base_prompt=base_prompt,
+            draft=artifact,
+            artifact_cls=CodeReview,
+            specialists=_SPECIALISTS,
+            max_tokens=1800,
+        )
 
     verify = await verify_gate(gate="G4", dept="Engineering", artifact=artifact)
     if verify.get("scores"):

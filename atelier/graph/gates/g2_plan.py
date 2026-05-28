@@ -3,11 +3,26 @@
 from __future__ import annotations
 
 from atelier.artifacts.plan import Plan
+from atelier.config import load_settings
 from atelier.graph.gates._llm import call_gate_llm, verify_gate
+from atelier.graph.gates._specialist import lead_revision_after_debate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
 
 PM_MODEL = "claude-opus-4-7"
+
+_SPECIALISTS = [
+    (
+        "PM Specialist",
+        "Product",
+        "Sharpen scope, milestones, and acceptance criteria.",
+    ),
+    (
+        "Market Researcher",
+        "Strategy",
+        "Surface demand signals, competitor moves, and unmet user needs.",
+    ),
+]
 
 SYSTEM_PROMPT = (
     "You are the PM Lead at Atelier, working with the Eng Manager to turn a "
@@ -20,9 +35,10 @@ SYSTEM_PROMPT = (
 )
 
 
-def _placeholder(charter: dict) -> Plan:
+def _placeholder(charter: dict[str, object]) -> Plan:
+    title = charter.get("title", "Plan")
     return Plan(
-        title=charter.get("title", "Plan"),
+        title=title if isinstance(title, str) else "Plan",
         milestones=["G3 design memo", "G4 build review", "G5 launch memo"],
         risks=["Unverified user demand", "Quota exhaustion under load"],
     )
@@ -32,21 +48,22 @@ async def g2_plan(state: CompanyState) -> CompanyState:
     charter = state.get("charter") or {}
     trace_event("g2.plan.start", dept="Product", title=charter.get("title", ""))
 
+    base_prompt = (
+        "Product Charter:\n"
+        f"title: {charter.get('title', '')}\n"
+        f"one_liner: {charter.get('one_liner', '')}\n"
+        f"problem: {charter.get('problem', '')}\n"
+        f"target_user: {charter.get('target_user', '')}\n"
+        "success_metrics:\n- "
+        + "\n- ".join(charter.get("success_metrics", []) or ["-"])
+    )
     artifact, used_llm, reason = await call_gate_llm(
         gate="G2",
         dept="Product",
         role="PM Lead",
         model=PM_MODEL,
         system=SYSTEM_PROMPT,
-        prompt=(
-            "Product Charter:\n"
-            f"title: {charter.get('title', '')}\n"
-            f"one_liner: {charter.get('one_liner', '')}\n"
-            f"problem: {charter.get('problem', '')}\n"
-            f"target_user: {charter.get('target_user', '')}\n"
-            "success_metrics:\n- "
-            + "\n- ".join(charter.get("success_metrics", []) or ["-"])
-        ),
+        prompt=base_prompt,
         artifact_cls=Plan,
         max_tokens=1200,
         quota_frac=0.01,
@@ -54,6 +71,19 @@ async def g2_plan(state: CompanyState) -> CompanyState:
     if artifact is None:
         trace_event("g2.plan.fallback", reason=reason)
         artifact = _placeholder(charter)
+    elif load_settings().specialist_debate_enabled:
+        artifact = await lead_revision_after_debate(
+            gate="G2",
+            dept="Product",
+            lead_role="PM Lead",
+            model=PM_MODEL,
+            system=SYSTEM_PROMPT,
+            base_prompt=base_prompt,
+            draft=artifact,
+            artifact_cls=Plan,
+            specialists=_SPECIALISTS,
+            max_tokens=1500,
+        )
 
     verify = await verify_gate(gate="G2", dept="Product", artifact=artifact)
     if verify.get("scores"):
