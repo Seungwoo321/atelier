@@ -19,3 +19,4 @@ class CompanyState(TypedDict, total=False):
     current_gate: str                # G1..G5 or 'done'
     blocked: bool                    # awaiting human at a gate
     eval_scores: dict[str, float]    # rubric scores from Eval Officer
+    mandate: dict[str, Any]          # explicit overrides (e.g. live_publish at G5)

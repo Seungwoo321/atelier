@@ -2,17 +2,9 @@
 
 from __future__ import annotations
 
-import json
-import re
-from typing import Any
-
-from pydantic import ValidationError
-
 from atelier.artifacts.charter import ProductCharter
-from atelier.budget import QuotaGuard
-from atelier.config import load_settings
+from atelier.graph.gates._llm import call_gate_llm
 from atelier.graph.state import CompanyState
-from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
 
 CHIEF_MODEL = "claude-opus-4-7"
@@ -25,14 +17,6 @@ SYSTEM_PROMPT = (
     '"success_metrics": [str, ...], "non_goals": [str, ...], "constraints": [str, ...]}'
     " title <= 120 chars. one_liner <= 240 chars. success_metrics 1-5 items."
 )
-
-
-def _strip_codefence(text: str) -> str:
-    m = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
-    if m:
-        return m.group(1)
-    m2 = re.search(r"\{.*\}", text, re.S)
-    return m2.group(0) if m2 else text.strip()
 
 
 def _placeholder(request: str) -> ProductCharter:
@@ -48,43 +32,24 @@ def _placeholder(request: str) -> ProductCharter:
 
 async def g1_charter(state: CompanyState) -> CompanyState:
     request = state.get("request", "")
-    trace_event("g1.charter.start", request=request[:120])
+    trace_event("g1.charter.start", dept="Chief", request=request[:120])
 
-    settings = load_settings()
-    quota = QuotaGuard(cap=settings.quota_cap)
-    provider_name = settings.llm_provider
-    charter: ProductCharter
-    used_llm = False
+    artifact, used_llm, reason = await call_gate_llm(
+        gate="G1",
+        dept="Chief",
+        role="Chief of Staff",
+        model=CHIEF_MODEL,
+        system=SYSTEM_PROMPT,
+        prompt=f"User request:\n\n{request}",
+        artifact_cls=ProductCharter,
+        max_tokens=1500,
+        quota_frac=0.01,
+    )
+    if artifact is None:
+        trace_event("g1.charter.fallback", reason=reason)
+        artifact = _placeholder(request)
 
-    try:
-        provider = get_provider(provider_name)
-        if await provider.healthcheck():
-            resp = await provider.complete(
-                system=SYSTEM_PROMPT,
-                prompt=f"User request:\n\n{request}",
-                model=CHIEF_MODEL,
-                max_tokens=1024,
-            )
-            raw: Any = json.loads(_strip_codefence(resp.text))
-            charter = ProductCharter.model_validate(raw)
-            quota.charge("Chief", 0.01)
-            trace_event(
-                "quota.charge",
-                dept="Chief",
-                role="Chief of Staff",
-                frac=0.01,
-                input_tokens=resp.input_tokens,
-                output_tokens=resp.output_tokens,
-            )
-            used_llm = True
-        else:
-            trace_event("g1.charter.fallback", reason="provider_unconfigured")
-            charter = _placeholder(request)
-    except (ValidationError, json.JSONDecodeError, RuntimeError, Exception) as e:
-        trace_event("g1.charter.fallback", reason=type(e).__name__, detail=str(e)[:200])
-        charter = _placeholder(request)
-
-    state["charter"] = charter.model_dump()
+    state["charter"] = artifact.model_dump()
     state.setdefault("notes", []).append(
         "g1: charter drafted" + (" (LLM)" if used_llm else " (placeholder)")
     )
