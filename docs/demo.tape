@@ -11,7 +11,7 @@ Set Shell "zsh"
 Set TypingSpeed 30ms
 
 Hide
-Type "cd /Users/mzc02-swlee/atelier && source .venv/bin/activate && rm -rf /tmp/atelier-demo && mkdir /tmp/atelier-demo && cd /tmp/atelier-demo && clear" Enter
+Type "source .venv/bin/activate && rm -rf /tmp/atelier-demo && mkdir /tmp/atelier-demo && cd /tmp/atelier-demo && clear" Enter
 Sleep 500ms
 Show
 
