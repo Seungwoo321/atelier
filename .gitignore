@@ -26,10 +26,10 @@ venv/
 htmlcov/
 .coverage
 
-# Atelier runtime
-inbox/
-artifacts/
-runs/
+# Atelier runtime (top-level only — web/app/api/inbox and web/app/api/runs are source)
+/inbox/
+/artifacts/
+/runs/
 *.sqlite
 *.sqlite-journal
 
