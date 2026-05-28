@@ -13,6 +13,7 @@ from atelier.memory.org import OrgMemory
 from atelier.memory.project import ProjectMemory
 from atelier.observability.tracer import configure as configure_logging
 from atelier.observability.tracer import trace_event
+from atelier.protocols.janitor import JanitorMemo
 
 
 async def run_request(settings: Settings, request: str, project_id: str = "default") -> dict:
@@ -36,8 +37,38 @@ async def run_request(settings: Settings, request: str, project_id: str = "defau
         json.dumps(final, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     pm.set("result", final)
+
+    _write_janitor_memo(settings.runs_dir, project_id, final)
+
     trace_event("run.done", project_id=project_id, gate=final.get("current_gate"))
     return final
+
+
+def _write_janitor_memo(runs_dir: Path, project_id: str, final: dict) -> None:
+    kept: list[str] = []
+    archived: list[str] = []
+    for label, key in (
+        ("charter", "charter"),
+        ("plan", "plan"),
+        ("design", "design"),
+        ("code_review", "code_review"),
+        ("launch", "launch"),
+    ):
+        if final.get(key):
+            kept.append(label)
+        else:
+            archived.append(label)
+    if final.get("prds"):
+        kept.append(f"prds×{len(final['prds'])}")
+    notes = final.get("notes") or []
+    summary = (
+        f"Run {project_id} finished at gate {final.get('current_gate', '?')}. "
+        f"{len(kept)} typed artifacts kept; {len(archived)} stages produced no artifact. "
+        f"Notes: {len(notes)}."
+    )
+    memo = JanitorMemo(phase=f"run-{project_id}", summary=summary, kept=kept, archived=archived)
+    path = memo.write(runs_dir)
+    trace_event("janitor.memo", project_id=project_id, path=str(path), kept=kept, archived=archived)
 
 
 def run_request_sync(settings: Settings, request: str, project_id: str = "default") -> dict:
