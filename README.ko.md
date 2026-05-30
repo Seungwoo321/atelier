@@ -13,7 +13,7 @@
 
 </div>
 
-![Atelier 라이브 오피스 — 9명의 부서 리드, SSE 기반 활동, 회의실 러그 위의 Cross-Dept Council 배지](docs/r9-office.png)
+![Atelier 라이브 오피스 — 9명의 부서 리드, SSE 기반 활동, 회의실 러그 위의 Cross-Dept Council 배지](docs/r38-office.png)
 
 > **라이브 액션** — SSE 스트림으로 이벤트가 도착하면 Chief of Staff에서 각 부서 리드로 파티클 트레일이 발사됩니다:
 >
@@ -133,7 +133,7 @@ atelier/
 │   ├── eval/                 # Eval Officer + DEPT_RUBRICS
 │   └── plugin/               # Claude Code 플러그인
 ├── web/                      # Next.js 16 + React 19 대시보드
-├── assets/                   # Modern Interiors 스프라이트 (프리 버전)
+├── assets/                   # Modern Interiors 스프라이트 (Full 라이선스)
 ├── tests/
 └── .claude/                  # Claude Code용 프로젝트 메모리 + 규칙
 ```
@@ -182,8 +182,8 @@ pnpm dev
 | 경로 | 미리보기 |
 | --- | --- |
 | `/` — 랜딩 | ![](docs/r9-landing.png) |
-| `/office` — 라이브 오피스 | ![](docs/r9-office.png) |
-| `/dashboard` — 실행 요약 | ![](docs/r9-dashboard.png) |
+| `/office` — 라이브 오피스 | ![](docs/r38-office.png) |
+| `/dashboard` — 실행 요약 | ![](docs/r38-dashboard.png) |
 
 
 첫 실행 전에 오피스/대시보드를 채워보고 싶다면 샘플 데이터를 시드하세요:
@@ -209,4 +209,4 @@ pytest
 
 ## License
 
-Proprietary — 내부 사용에 한함. `assets/modern-interiors/`에 번들된 Modern Interiors 스프라이트는 © LimeZu의 자산이며 *free version* 라이선스(비상업적 용도)로 재배포됩니다. `assets/modern-interiors/LICENSE.txt` 참조.
+Proprietary — 내부 사용에 한함. `assets/modern-interiors/`에 번들된 Modern Interiors 스프라이트는 © LimeZu의 자산이며 **Full 버전** 라이선스(상업적 사용 허용, 재배포 금지, [limezu.itch.io](https://limezu.itch.io/moderninteriors) 크레딧 필수)로 사용합니다. `assets/modern-interiors/LICENSE.txt` 참조.

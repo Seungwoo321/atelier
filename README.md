@@ -13,7 +13,7 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 
 </div>
 
-![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r9-office.png)
+![Atelier live office — 9 dept leads, SSE-driven activity, Cross-Dept Council badge on the meeting rug](docs/r38-office.png)
 
 > **Live action** — particle trails from the Chief of Staff to each dept lead trigger as events arrive on the SSE stream:
 >
@@ -133,7 +133,7 @@ atelier/
 │   ├── eval/                 # Eval Officer + DEPT_RUBRICS
 │   └── plugin/               # Claude Code plugin
 ├── web/                      # Next.js 16 + React 19 dashboard
-├── assets/                   # Modern Interiors sprites (free version)
+├── assets/                   # Modern Interiors sprites (full license)
 ├── tests/
 └── .claude/                  # Project memory + rules for Claude Code
 ```
@@ -182,8 +182,8 @@ Open <http://localhost:3000>. The landing page is at `/`, the live office at `/o
 | Route | Preview |
 | --- | --- |
 | `/` — landing | ![](docs/r9-landing.png) |
-| `/office` — live office | ![](docs/r9-office.png) |
-| `/dashboard` — run summary | ![](docs/r9-dashboard.png) |
+| `/office` — live office | ![](docs/r38-office.png) |
+| `/dashboard` — run summary | ![](docs/r38-dashboard.png) |
 
 
 Want the office and dashboard populated before your first real run? Seed a sample run:
@@ -209,4 +209,4 @@ pytest
 
 ## License
 
-Proprietary — internal use only. Modern Interiors sprite assets bundled under `assets/modern-interiors/` are © LimeZu and redistributed under the *free version* license (non-commercial use only). See `assets/modern-interiors/LICENSE.txt`.
+Proprietary — internal use only. Modern Interiors sprite assets bundled under `assets/modern-interiors/` are © LimeZu and used under the **full version** license (commercial use permitted; redistribution forbidden; credits required to [limezu.itch.io](https://limezu.itch.io/moderninteriors)). See `assets/modern-interiors/LICENSE.txt`.

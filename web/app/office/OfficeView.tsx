@@ -4,7 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Application, Assets, Sprite, Container, Rectangle, Texture, Graphics } from "pixi.js";
 import { useEventStream } from "@/lib/useEventStream";
 
-const SPRITES = ["Adam", "Alex", "Amelia", "Bob"] as const;
+const SPRITES = [
+  "Adam",
+  "Alex",
+  "Amelia",
+  "Bob",
+  "Bruce",
+  "Conference_man",
+  "Dan",
+  "Edward",
+  "Lucy",
+] as const;
 
 type Lead = {
   dept: string;
@@ -19,15 +29,15 @@ interface RolesResponse {
 }
 
 const LEADS: Lead[] = [
-  { dept: "Chief", name: "Chief of Staff", sprite: "Adam", x: 80, y: 130 },
-  { dept: "Strategy", name: "BizDev Lead", sprite: "Alex", x: 288, y: 130 },
+  { dept: "Chief", name: "Chief of Staff", sprite: "Conference_man", x: 80, y: 130 },
+  { dept: "Strategy", name: "BizDev Lead", sprite: "Adam", x: 288, y: 130 },
   { dept: "Product", name: "PM Lead", sprite: "Amelia", x: 496, y: 130 },
   { dept: "Design", name: "Design Lead", sprite: "Bob", x: 80, y: 262 },
-  { dept: "Engineering", name: "Eng Manager", sprite: "Adam", x: 288, y: 262 },
-  { dept: "QA", name: "QA Lead", sprite: "Alex", x: 496, y: 262 },
-  { dept: "Marketing", name: "Mkt Lead", sprite: "Amelia", x: 80, y: 394 },
-  { dept: "Operations", name: "Ops Lead", sprite: "Bob", x: 288, y: 394 },
-  { dept: "Analytics", name: "Analytics Lead", sprite: "Adam", x: 496, y: 394 },
+  { dept: "Engineering", name: "Eng Manager", sprite: "Bruce", x: 288, y: 262 },
+  { dept: "QA", name: "QA Lead", sprite: "Dan", x: 496, y: 262 },
+  { dept: "Marketing", name: "Mkt Lead", sprite: "Lucy", x: 80, y: 394 },
+  { dept: "Operations", name: "Ops Lead", sprite: "Edward", x: 288, y: 394 },
+  { dept: "Analytics", name: "Analytics Lead", sprite: "Alex", x: 496, y: 394 },
 ];
 
 export default function OfficeView() {
