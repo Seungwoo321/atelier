@@ -13,7 +13,7 @@ A Python framework that orchestrates 28 LLM-driven roles across 9 departments th
 
 </div>
 
-![Atelier open-world office — 9 walled department rooms + Cross-Dept Council hall, user avatar walks the floor with WASD/arrows while the camera follows](docs/r40-office.png)
+![Atelier open-world office — data-driven open-plan floor, 36 agents (9 leads + 27 specialists) seated at desks, walled Cross-Dept Council room, WASD/arrows avatar with camera follow](docs/r41-office.png)
 
 > **Live action** — particle trails from the Chief of Staff to each dept lead trigger as events arrive on the SSE stream:
 >
@@ -182,8 +182,8 @@ Open <http://localhost:3000>. The landing page is at `/`, the live office at `/o
 | Route | Preview |
 | --- | --- |
 | `/` — landing | ![](docs/r9-landing.png) |
-| `/office` — open-world office (WASD/arrows to walk) | ![](docs/r40-office.png) |
-| `/dashboard` — run summary | ![](docs/r40-dashboard.png) |
+| `/office` — open-world office (WASD/arrows to walk, 36 agents at desks) | ![](docs/r41-office.png) |
+| `/dashboard` — run summary | ![](docs/r41-dashboard.png) |
 
 
 Want the office and dashboard populated before your first real run? Seed a sample run:
