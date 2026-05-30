@@ -72,6 +72,10 @@ interface EventRow {
   rationale?: string;
   votes?: Record<string, string>;
   deciding_vote_used?: boolean;
+  role?: string;
+  origin?: string;
+  seniority?: string;
+  lead?: string;
 }
 
 async function loadResults(): Promise<Array<{ project: string; data: Result }>> {
@@ -238,6 +242,65 @@ function gateTimings(events: EventRow[]): Record<string, string> {
   return out;
 }
 
+interface FoundryStats {
+  requisitions: number;
+  cacheHits: number;
+  hires: number;
+  fallbacks: number;
+  judgeFailed: number;
+  reuseRate: number;
+  recentHires: Array<{ role: string; dept: string; seniority?: string; ts: string }>;
+  perGate: Record<string, { reqs: number; hits: number; hires: number; fallbacks: number }>;
+}
+
+function foundryStats(events: EventRow[]): FoundryStats {
+  const stats: FoundryStats = {
+    requisitions: 0,
+    cacheHits: 0,
+    hires: 0,
+    fallbacks: 0,
+    judgeFailed: 0,
+    reuseRate: 0,
+    recentHires: [],
+    perGate: {},
+  };
+  const bucket = (g?: string) => {
+    if (!g) return null;
+    if (!stats.perGate[g]) stats.perGate[g] = { reqs: 0, hits: 0, hires: 0, fallbacks: 0 };
+    return stats.perGate[g];
+  };
+  for (const e of events) {
+    const b = bucket(e.gate);
+    if (e.event === "foundry.requisition") {
+      stats.requisitions++;
+      if (b) b.reqs++;
+    } else if (e.event === "foundry.cache_hit") {
+      stats.cacheHits++;
+      if (b) b.hits++;
+    } else if (e.event === "foundry.hire") {
+      stats.hires++;
+      if (b) b.hires++;
+      if (e.role && e.dept) {
+        stats.recentHires.push({
+          role: e.role,
+          dept: e.dept,
+          seniority: e.seniority,
+          ts: e.ts,
+        });
+      }
+    } else if (e.event === "foundry.fallback") {
+      stats.fallbacks++;
+      if (b) b.fallbacks++;
+    } else if (e.event === "foundry.spec_judge.failed") {
+      stats.judgeFailed++;
+    }
+  }
+  const denom = stats.requisitions || 1;
+  stats.reuseRate = stats.cacheHits / denom;
+  stats.recentHires = stats.recentHires.slice(-5).reverse();
+  return stats;
+}
+
 function latestCouncilFromEvents(events: EventRow[]): (Council & { ts?: string }) | null {
   let decisionIdx = -1;
   for (let i = events.length - 1; i >= 0; i--) {
@@ -275,6 +338,7 @@ export default async function DashboardPage() {
   const verify = verifyByGate(events);
   const reflexion = reflexionByGate(events);
   const ranges = gateRanges(events);
+  const foundry = foundryStats(events);
   const hasResultCouncil = results.some((r) => r.data.council?.votes);
   const eventCouncil = !hasResultCouncil ? latestCouncilFromEvents(events) : null;
   const gateColor: Record<string, string> = {
@@ -646,6 +710,119 @@ export default async function DashboardPage() {
               </ul>
             )}
           </div>
+
+          {foundry.requisitions > 0 && (
+            <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+              <div className="flex items-baseline justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+                  Role Foundry
+                </h3>
+                <span
+                  title="cache_hit / requisitions"
+                  className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-mono text-emerald-200 ring-1 ring-emerald-400/30"
+                >
+                  reuse {Math.round(foundry.reuseRate * 100)}%
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+                <div className="rounded bg-neutral-900/80 px-1.5 py-2">
+                  <div className="font-mono text-base tabular-nums text-cyan-200">
+                    {foundry.cacheHits}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500">
+                    reuse
+                  </div>
+                </div>
+                <div className="rounded bg-neutral-900/80 px-1.5 py-2">
+                  <div className="font-mono text-base tabular-nums text-amber-200">
+                    {foundry.hires}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500">
+                    hires
+                  </div>
+                </div>
+                <div className="rounded bg-neutral-900/80 px-1.5 py-2">
+                  <div
+                    className={
+                      "font-mono text-base tabular-nums " +
+                      (foundry.fallbacks > 0 ? "text-rose-200" : "text-neutral-400")
+                    }
+                  >
+                    {foundry.fallbacks}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500">
+                    fallback
+                  </div>
+                </div>
+              </div>
+              {foundry.judgeFailed > 0 && (
+                <p
+                  className="mt-2 text-[10px] text-amber-200/80"
+                  title="Spec Judge rejected at least one hired RoleSpec; Foundry retried with critique."
+                >
+                  spec_judge rejected {foundry.judgeFailed}, retried with critique
+                </p>
+              )}
+              {foundry.recentHires.length > 0 && (
+                <>
+                  <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">
+                    recent hires
+                  </div>
+                  <ul className="mt-1.5 space-y-1 text-[11px]">
+                    {foundry.recentHires.map((h, i) => (
+                      <li
+                        key={`${h.role}-${i}`}
+                        className="flex items-center justify-between rounded bg-neutral-900/60 px-2 py-1"
+                      >
+                        <span className="truncate text-neutral-200">{h.role}</span>
+                        <span className="ml-2 flex items-center gap-1.5 font-mono text-[10px] text-neutral-500">
+                          {h.seniority && (
+                            <span className="rounded bg-purple-500/10 px-1 text-purple-200 ring-1 ring-purple-400/20">
+                              {h.seniority}
+                            </span>
+                          )}
+                          <span>{h.dept}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {Object.keys(foundry.perGate).length > 0 && (
+                <>
+                  <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">
+                    per gate
+                  </div>
+                  <ul className="mt-1.5 space-y-1 text-[11px] font-mono">
+                    {Object.entries(foundry.perGate)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([g, s]) => (
+                        <li
+                          key={g}
+                          className="flex items-center justify-between rounded bg-neutral-900/60 px-2 py-1"
+                        >
+                          <span className="text-neutral-300">{g}</span>
+                          <span className="flex gap-2 text-neutral-500 tabular-nums">
+                            <span title="requisitions">req {s.reqs}</span>
+                            <span className="text-cyan-300/90" title="cache_hit">
+                              ↻{s.hits}
+                            </span>
+                            <span className="text-amber-300/90" title="hire">
+                              +{s.hires}
+                            </span>
+                            {s.fallbacks > 0 && (
+                              <span className="text-rose-300/90" title="fallback">
+                                !{s.fallbacks}
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
 
           <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-4">
             <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">

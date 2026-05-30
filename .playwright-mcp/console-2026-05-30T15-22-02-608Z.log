@@ -1,0 +1,129 @@
+[    6296ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[    6308ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 1974386ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 1974393ms] [LOG] [Fast Refresh] done in 107ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2003194ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2012595ms] [LOG] [Fast Refresh] done in 5804ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2012605ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2016019ms] [LOG] [Fast Refresh] done in 8ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2016029ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/office?_rsc=ll-_DiNo9KmhZcmJ:0
+[ 2017248ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2018351ms] [LOG] [Fast Refresh] done in 1204ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2018352ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/office?_rsc=ll-_DiNo9KmhZcmJ:0
+[ 2018455ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2019261ms] [LOG] [Fast Refresh] done in 907ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2019268ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/office:0
+[ 2020290ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0a8t_react-dom_07.400g._.js:15305
+[ 2020328ms] Error: The default export is not a React Component in "/office/layout"
+    at errorMissingDefaultExport (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:20093)
+    at createComponentTreeInternal (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:28813)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:31517)
+    at async createComponentTreeInternal (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:30260)
+    at async getRSCPayload (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:42236)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:73629)
+    at async renderToHTMLOrFlightImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:56960)
+    at async doRender (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5196:28)
+    at async AppPageRouteModule.handleResponse (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:71:66429)
+    at async handleResponse (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5507:32)
+    at async Module.handler (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5913:20)
+    at async DevServer.renderToResponseWithComponentsImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1462:9)
+    at async DevServer.renderPageComponent (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1514:24)
+    at async DevServer.renderToResponseImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1564:32)
+    at async DevServer.pipeImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1044:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:935:17)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/dev/next-dev-server.js:394:20)
+    at async Span.traceAsyncFn (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/trace/trace.js:164:20)
+    at async DevServer.handleRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/dev/next-dev-server.js:390:24)
+    at async invokeRender (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:266:21)
+    at async handleRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:465:24)
+    at async requestHandlerImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:514:13)
+    at async Server.requestListener (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/start-server.js:225:13)
+[ 2020342ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2020396ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[ 2465939ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2465968ms] [LOG] [Fast Refresh] done in 25ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2466097ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2466352ms] [LOG] [Fast Refresh] done in 357ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2466368ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/office:0
+[ 2466387ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/0a8t_react-dom_07.400g._.js:15305
+[ 2466396ms] Error: The default export is not a React Component in "/office/layout"
+    at errorMissingDefaultExport (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:20093)
+    at createComponentTreeInternal (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:28813)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:31517)
+    at async createComponentTreeInternal (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:65:30260)
+    at async getRSCPayload (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:42236)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:73629)
+    at async renderToHTMLOrFlightImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:69:56960)
+    at async doRender (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5196:28)
+    at async AppPageRouteModule.handleResponse (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js:71:66429)
+    at async handleResponse (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5507:32)
+    at async Module.handler (file:///Users/mzc02-swlee/atelier/web/.next/dev/server/chunks/ssr/node_modules__pnpm_10j4b1r._.js:5913:20)
+    at async DevServer.renderToResponseWithComponentsImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1462:9)
+    at async DevServer.renderPageComponent (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1514:24)
+    at async DevServer.renderToResponseImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1564:32)
+    at async DevServer.pipeImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:1044:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/base-server.js:935:17)
+    at async (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/dev/next-dev-server.js:394:20)
+    at async Span.traceAsyncFn (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/trace/trace.js:164:20)
+    at async DevServer.handleRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/dev/next-dev-server.js:390:24)
+    at async invokeRender (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:266:21)
+    at async handleRequest (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:465:24)
+    at async requestHandlerImpl (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/router-server.js:514:13)
+    at async Server.requestListener (file:///Users/mzc02-swlee/atelier/web/node_modules/.pnpm/next@16.2.6_react-dom@19.2.6_react@19.2.6__react@19.2.6/node_modules/next/dist/server/lib/start-server.js:225:13)
+[ 2466396ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2466498ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2466516ms] [LOG] [Fast Refresh] done in 118ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2473667ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2473871ms] [LOG] [Fast Refresh] done in 304ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2475000ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2475181ms] [LOG] [Fast Refresh] done in 283ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2476318ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2476499ms] [LOG] [Fast Refresh] done in 284ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2477637ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2477814ms] [LOG] [Fast Refresh] done in 278ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2478948ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2479126ms] [LOG] [Fast Refresh] done in 279ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2480248ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2480425ms] [LOG] [Fast Refresh] done in 280ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2481551ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2481752ms] [LOG] [Fast Refresh] done in 302ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2482880ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2483068ms] [LOG] [Fast Refresh] done in 289ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2484200ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2484372ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2485511ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2485688ms] [LOG] [Fast Refresh] done in 279ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2486820ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2487007ms] [LOG] [Fast Refresh] done in 288ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2488139ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2488325ms] [LOG] [Fast Refresh] done in 288ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2489459ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2489628ms] [LOG] [Fast Refresh] done in 272ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2490762ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2490932ms] [LOG] [Fast Refresh] done in 271ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2492066ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2492247ms] [LOG] [Fast Refresh] done in 282ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2493372ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2493549ms] [LOG] [Fast Refresh] done in 279ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2494672ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2494859ms] [LOG] [Fast Refresh] done in 288ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2496005ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2496176ms] [LOG] [Fast Refresh] done in 274ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2497312ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2497500ms] [LOG] [Fast Refresh] done in 290ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2498636ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2499112ms] [LOG] [Fast Refresh] done in 578ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2500269ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2500636ms] [LOG] [Fast Refresh] done in 467ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2501801ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2502351ms] [LOG] [Fast Refresh] done in 651ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2510265ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2510669ms] [LOG] [Fast Refresh] done in 504ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2514982ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2515606ms] [LOG] [Fast Refresh] done in 726ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2533429ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2533486ms] [LOG] [Fast Refresh] done in 130ms @ http://localhost:3000/_next/static/chunks/08c5_next_dist_0oi3rtp._.js:1226
+[ 2533715ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477
+[ 2533727ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/08c5_next_dist_09qnwt3._.js:2477

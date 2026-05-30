@@ -1,0 +1,115 @@
+- generic [active]:
+  - main [ref=e1]:
+    - generic [ref=e2]:
+      - generic [ref=e3]:
+        - generic:
+          - generic:
+            - generic:
+              - generic: atelier://office
+              - generic: · 9 leads on duty + 27 specialists
+            - generic:
+              - text: "gate: G5 · quota:"
+              - generic: 8.5%
+          - generic [ref=e5]:
+            - button "Filter events to Chief" [ref=e6] [cursor=pointer]: Chief
+            - generic [ref=e8]: Chief of Staff
+            - generic "2 specialists in Chief" [ref=e74]: "+2"
+          - generic [ref=e9]:
+            - button "Filter events to Strategy" [ref=e10] [cursor=pointer]: Strategy
+            - generic [ref=e12]: BizDev Lead
+            - generic "3 specialists in Strategy" [ref=e76]: "+3"
+          - generic [ref=e13]:
+            - button "Filter events to Product" [ref=e14] [cursor=pointer]: Product
+            - generic [ref=e16]: PM Lead
+            - generic "2 specialists in Product" [ref=e78]: "+2"
+          - generic [ref=e17]:
+            - button "Filter events to Design" [ref=e18] [cursor=pointer]: Design
+            - generic [ref=e20]: Design Lead
+            - generic "3 specialists in Design" [ref=e80]: "+3"
+          - generic [ref=e21]:
+            - button "Filter events to Engineering" [ref=e22] [cursor=pointer]: Engineering
+            - generic [ref=e24]: Eng Manager
+            - generic "7 specialists in Engineering" [ref=e82]: "+7"
+          - generic [ref=e25]:
+            - button "Filter events to QA" [ref=e26] [cursor=pointer]: QA
+            - generic [ref=e28]: QA Lead
+            - generic "2 specialists in QA" [ref=e84]: "+2"
+          - generic [ref=e29]:
+            - button "Filter events to Marketing" [ref=e30] [cursor=pointer]: Marketing
+            - generic [ref=e32]: Mkt Lead
+            - generic "4 specialists in Marketing" [ref=e86]: "+4"
+          - generic [ref=e33]:
+            - button "Filter events to Operations" [ref=e34] [cursor=pointer]: Operations
+            - generic [ref=e36]: Ops Lead
+            - generic "2 specialists in Operations" [ref=e88]: "+2"
+          - generic [ref=e37]:
+            - button "Filter events to Analytics" [ref=e38] [cursor=pointer]: Analytics
+            - generic [ref=e40]: Analytics Lead
+            - generic "2 specialists in Analytics" [ref=e90]: "+2"
+          - generic:
+            - generic:
+              - generic: Cross-Dept Council
+            - generic: 4 departments active
+        - generic [ref=e41]: "events received: 50"
+      - complementary [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]: live event log
+          - generic [ref=e45]:
+            - img "activity over last 60s, peak 6" [ref=e92]
+            - generic [ref=e59]: 50 total
+        - log "live event log" [ref=e60]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: run.done
+            - generic [ref=e96]: 오후 11:21:00
+          - generic [ref=e98]:
+            - generic [ref=e99]: memory.role.updated
+            - generic [ref=e100]: 오후 11:21:00
+          - generic [ref=e102]:
+            - generic [ref=e103]: janitor.memo
+            - generic [ref=e104]: 오후 11:21:00
+          - generic [ref=e106]:
+            - generic [ref=e107]: council.decision
+            - generic [ref=e108]: 오후 11:21:00
+          - generic [ref=e109]:
+            - generic [ref=e110]:
+              - generic [ref=e111]: council.vote
+              - generic [ref=e112]: 오후 11:21:00
+            - button "Marketing" [ref=e113] [cursor=pointer]
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]: quota.charge
+              - generic [ref=e117]: 오후 11:21:00
+            - button "Marketing" [ref=e118] [cursor=pointer]
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e121]: council.vote
+              - generic [ref=e122]: 오후 11:20:35
+            - button "QA" [ref=e123] [cursor=pointer]
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - generic [ref=e126]: quota.charge
+              - generic [ref=e127]: 오후 11:20:35
+            - button "QA" [ref=e128] [cursor=pointer]
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - generic [ref=e131]: council.vote
+              - generic [ref=e132]: 오후 11:20:18
+            - button "Engineering" [ref=e133] [cursor=pointer]
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - generic [ref=e136]: quota.charge
+              - generic [ref=e137]: 오후 11:20:18
+            - button "Engineering" [ref=e138] [cursor=pointer]
+          - generic [ref=e139]:
+            - generic [ref=e140]:
+              - generic [ref=e141]: council.vote
+              - generic [ref=e142]: 오후 11:20:00
+            - button "Product" [ref=e143] [cursor=pointer]
+          - generic [ref=e144]:
+            - generic [ref=e145]:
+              - generic [ref=e146]: quota.charge
+              - generic [ref=e147]: 오후 11:20:00
+            - button "Product" [ref=e148] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e69] [cursor=pointer]:
+    - img [ref=e70]
+  - alert [ref=e149]

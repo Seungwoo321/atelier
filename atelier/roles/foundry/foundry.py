@@ -13,6 +13,7 @@ from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
 from atelier.roles.foundry.seed import seed_role_specs
 from atelier.roles.foundry.spec import Requisition, RoleSpec
+from atelier.roles.foundry.spec_judge import judge_role_spec
 
 TALENT_MODEL = "claude-opus-4-7"
 
@@ -140,22 +141,32 @@ class Foundry:
         )
         return fb
 
-    async def _hire_via_llm(self, req: Requisition) -> RoleSpec | None:
+    def _build_prompt(self, req: Requisition, critique: str | None = None) -> str:
+        base = (
+            "Requisition\n"
+            f"gate: {req.gate}\n"
+            f"issuing_lead: {req.issuing_lead}\n"
+            f"department: {req.department}\n"
+            f"capability: {req.capability}\n"
+            f"deliverable: {req.deliverable}\n"
+            f"constraints: {', '.join(req.constraints) or '(none)'}\n"
+            f"context: {req.context_summary or '(none)'}"
+        )
+        if critique:
+            base += (
+                "\n\nPrior draft was rejected by Spec Judge. Address every issue:\n- "
+                + "\n- ".join(critique.splitlines() or [critique])
+            )
+        return base
+
+    async def _attempt_hire(
+        self, req: Requisition, prompt: str
+    ) -> tuple[RoleSpec | None, str]:
         settings = load_settings()
         try:
             provider = get_provider(settings.llm_provider)
             if not await provider.healthcheck():
-                return None
-            prompt = (
-                "Requisition\n"
-                f"gate: {req.gate}\n"
-                f"issuing_lead: {req.issuing_lead}\n"
-                f"department: {req.department}\n"
-                f"capability: {req.capability}\n"
-                f"deliverable: {req.deliverable}\n"
-                f"constraints: {', '.join(req.constraints) or '(none)'}\n"
-                f"context: {req.context_summary or '(none)'}"
-            )
+                return None, "no_provider"
             resp = await provider.complete(
                 system=TALENT_SYSTEM,
                 prompt=prompt,
@@ -177,7 +188,7 @@ class Foundry:
                 output_tokens=resp.output_tokens,
                 tier="opus",
             )
-            return spec
+            return spec, "ok"
         except (ValidationError, json.JSONDecodeError) as e:
             trace_event(
                 "foundry.hire.parse_error",
@@ -185,7 +196,7 @@ class Foundry:
                 dept=req.department,
                 error=type(e).__name__,
             )
-            return None
+            return None, f"parse_error:{type(e).__name__}"
         except Exception as e:
             trace_event(
                 "foundry.hire.error",
@@ -193,4 +204,56 @@ class Foundry:
                 dept=req.department,
                 error=f"{type(e).__name__}:{str(e)[:80]}",
             )
-            return None
+            return None, f"error:{type(e).__name__}"
+
+    async def _hire_via_llm(self, req: Requisition) -> RoleSpec | None:
+        spec, status = await self._attempt_hire(req, self._build_prompt(req))
+        if spec is None:
+            if status.startswith("parse_error"):
+                retry_spec, _ = await self._attempt_hire(
+                    req,
+                    self._build_prompt(
+                        req,
+                        critique=(
+                            "Previous reply failed JSON schema validation. "
+                            "Emit exactly the required keys, no prose."
+                        ),
+                    ),
+                )
+                if retry_spec is None:
+                    return None
+                spec = retry_spec
+            else:
+                return None
+        verdict = judge_role_spec(spec)
+        if verdict.passed:
+            trace_event(
+                "foundry.spec_judge.passed",
+                gate=req.gate,
+                dept=req.department,
+                role=spec.title,
+                score=verdict.score,
+            )
+            return spec
+        trace_event(
+            "foundry.spec_judge.failed",
+            gate=req.gate,
+            dept=req.department,
+            role=spec.title,
+            score=verdict.score,
+            issues=verdict.issues,
+        )
+        critique = "\n".join(verdict.issues)
+        retry_spec, _ = await self._attempt_hire(req, self._build_prompt(req, critique))
+        if retry_spec is None:
+            return spec
+        retry_verdict = judge_role_spec(retry_spec)
+        trace_event(
+            "foundry.spec_judge.retry",
+            gate=req.gate,
+            dept=req.department,
+            role=retry_spec.title,
+            score=retry_verdict.score,
+            passed=retry_verdict.passed,
+        )
+        return retry_spec if retry_verdict.score >= verdict.score else spec

@@ -8,6 +8,7 @@ from atelier.graph.gates._llm import call_gate_llm, verify_gate
 from atelier.graph.gates._specialist import lead_revision_after_debate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
+from atelier.roles.foundry import Foundry, Requisition
 
 PM_MODEL = "claude-opus-4-7"
 
@@ -23,6 +24,55 @@ _SPECIALISTS = [
         "Surface demand signals, competitor moves, and unmet user needs.",
     ),
 ]
+
+_REQUISITIONS = [
+    Requisition(
+        gate="G2",
+        issuing_lead="PM Lead",
+        department="Product",
+        capability=(
+            "milestone scoping and acceptance-criteria sharpening for a "
+            "Plan derived from a Product Charter"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) calling out vague milestones, "
+            "missing acceptance criteria, and risky scope creep"
+        ),
+        constraints=["3-6 milestones total", "outcome-shaped, not task-shaped"],
+    ),
+    Requisition(
+        gate="G2",
+        issuing_lead="PM Lead",
+        department="Strategy",
+        capability=(
+            "market-demand and competitor-move critique for a Plan derived "
+            "from a Product Charter"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) on demand evidence gaps, competitor "
+            "exposure, and ignored adjacent use-cases"
+        ),
+        constraints=["cite at least one observable signal", "no hand-waving"],
+    ),
+]
+
+
+async def _foundry_pairs(charter: dict[str, object]) -> list[tuple[str, str, str]]:
+    settings = load_settings()
+    foundry = Foundry(settings.runs_dir)
+    title_val = charter.get("title", "")
+    one_val = charter.get("one_liner", "")
+    user_val = charter.get("target_user", "")
+    title = title_val if isinstance(title_val, str) else ""
+    one_liner = one_val if isinstance(one_val, str) else ""
+    target_user = user_val if isinstance(user_val, str) else ""
+    ctx = f"charter title: {title}; one_liner: {one_liner}; target_user: {target_user}"
+    pairs: list[tuple[str, str, str]] = []
+    for base in _REQUISITIONS:
+        req = base.model_copy(update={"context_summary": ctx})
+        spec = await foundry.hire(req)
+        pairs.append((spec.title, spec.department, spec.one_liner))
+    return pairs
 
 SYSTEM_PROMPT = (
     "You are the PM Lead at Atelier, working with the Eng Manager to turn a "
@@ -71,19 +121,24 @@ async def g2_plan(state: CompanyState) -> CompanyState:
     if artifact is None:
         trace_event("g2.plan.fallback", reason=reason)
         artifact = _placeholder(charter)
-    elif load_settings().specialist_debate_enabled:
-        artifact = await lead_revision_after_debate(
-            gate="G2",
-            dept="Product",
-            lead_role="PM Lead",
-            model=PM_MODEL,
-            system=SYSTEM_PROMPT,
-            base_prompt=base_prompt,
-            draft=artifact,
-            artifact_cls=Plan,
-            specialists=_SPECIALISTS,
-            max_tokens=1500,
-        )
+    else:
+        settings = load_settings()
+        if settings.specialist_debate_enabled:
+            specialists = (
+                await _foundry_pairs(charter) if settings.foundry_enabled else _SPECIALISTS
+            )
+            artifact = await lead_revision_after_debate(
+                gate="G2",
+                dept="Product",
+                lead_role="PM Lead",
+                model=PM_MODEL,
+                system=SYSTEM_PROMPT,
+                base_prompt=base_prompt,
+                draft=artifact,
+                artifact_cls=Plan,
+                specialists=specialists,
+                max_tokens=1500,
+            )
 
     verify = await verify_gate(gate="G2", dept="Product", artifact=artifact)
     if verify.get("scores"):

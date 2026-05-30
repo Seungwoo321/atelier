@@ -601,6 +601,7 @@ export default function OfficeView() {
   const specialistTotal = Object.values(specCount).reduce((a, b) => a + b, 0);
 
   return (
+<<<<<<< HEAD
     <div className="relative h-full w-full">
       <div ref={stageRef} className="absolute inset-0" />
 
@@ -614,6 +615,117 @@ export default function OfficeView() {
           <span className="text-neutral-500">
             {LEADS.length} leads on duty{specialistTotal > 0 ? ` + ${specialistTotal} specialists` : ""}
           </span>
+=======
+    <div className="grid grid-cols-1 gap-3 items-start lg:grid-cols-[1fr_280px]">
+      <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 relative">
+        <div ref={stageRef} style={{ aspectRatio: "960 / 600" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ aspectRatio: "960 / 600" }}>
+          <div className="absolute left-3 right-3 top-2 flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
+              <span className="font-mono text-emerald-300/90">atelier://office</span>
+              <span className="text-neutral-500">
+                · 9 leads on duty
+                {Object.keys(specCount).length > 0
+                  ? ` + ${Object.values(specCount).reduce((a, b) => a + b, 0)} specialists`
+                  : ""}
+              </span>
+            </div>
+            <div className="hidden sm:block font-mono text-neutral-400">
+              gate:{" "}
+              <span className={currentGate ? "text-emerald-300" : "text-amber-300"}>
+                {currentGate ?? "idle"}
+              </span>{" "}
+              · quota:{" "}
+              <span className="text-neutral-200 tabular-nums">
+                {(quotaTotal * 100).toFixed(1)}%
+              </span>
+            </div>
+          </div>
+          {LEADS.map((l) => {
+            const act = activity[l.dept];
+            const busy = !!act;
+            const selected = filterDept === l.dept;
+            return (
+              <div
+                key={l.dept}
+                className="absolute hidden md:block text-[10px] leading-tight font-medium text-center pointer-events-auto"
+                style={{
+                  left: `${((l.x - 28) / 960) * 100}%`,
+                  top: `${((l.y + 108) / 600) * 100}%`,
+                  width: `${(120 / 960) * 100}%`,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setFilterDept(selected ? null : l.dept)}
+                  aria-label={`Filter events to ${l.dept}`}
+                  aria-pressed={selected}
+                  className={
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 backdrop-blur-sm shadow-[0_2px_6px_rgba(0,0,0,0.5)] cursor-pointer transition " +
+                    (selected
+                      ? "bg-purple-500/30 ring-1 ring-purple-300 text-purple-100"
+                      : busy
+                      ? "bg-emerald-500/15 ring-1 ring-emerald-400/60 text-emerald-200 hover:bg-emerald-500/25"
+                      : "bg-amber-500/15 ring-1 ring-amber-400/50 text-amber-200 hover:bg-amber-500/25")
+                  }
+                >
+                  <span
+                    className={
+                      "h-1.5 w-1.5 rounded-full " +
+                      (selected
+                        ? "bg-purple-300 shadow-[0_0_6px_#d8b4fe]"
+                        : busy
+                        ? "bg-emerald-300 animate-pulse shadow-[0_0_6px_#34d399]"
+                        : "bg-amber-300")
+                    }
+                  />
+                  {l.dept}
+                </button>
+                <div className="mt-0.5 rounded-sm bg-black/75 px-1.5 py-0.5 text-neutral-100 ring-1 ring-white/10">
+                  {l.name}
+                </div>
+                {(specCount[l.dept] ?? 0) > 0 && (
+                  <div
+                    className={
+                      "mt-0.5 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] tabular-nums ring-1 transition " +
+                      (specActivity[l.dept]
+                        ? "bg-fuchsia-500/25 ring-fuchsia-300 text-fuchsia-100"
+                        : "bg-neutral-800/80 ring-white/10 text-neutral-400")
+                    }
+                    title={`${specCount[l.dept]} specialists in ${l.dept}${specActivity[l.dept] ? ` · ${specActivity[l.dept]} just challenged` : ""}`}
+                  >
+                    <span
+                      className={
+                        "h-1 w-1 rounded-full " +
+                        (specActivity[l.dept] ? "bg-fuchsia-300 animate-pulse" : "bg-neutral-500")
+                      }
+                    />
+                    +{specCount[l.dept]}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {councilCount >= 2 && (
+            <div
+              className="absolute hidden md:block rounded-md bg-cyan-500/15 ring-1 ring-cyan-400/40 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-cyan-100 shadow-[0_2px_8px_rgba(34,211,238,0.25)]"
+              style={{
+                right: `${(80 / 960) * 100}%`,
+                top: `${(90 / 600) * 100}%`,
+                maxWidth: 220,
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 animate-pulse" />
+                <span className="font-semibold uppercase tracking-widest">Cross-Dept Council</span>
+              </div>
+              <div className="mt-0.5 text-cyan-200/80 whitespace-nowrap">
+                {councilCount} departments active
+              </div>
+            </div>
+          )}
+>>>>>>> docs/refresh-cli-demo
         </div>
         <div className="pointer-events-auto flex items-center gap-3 rounded-lg bg-black/65 px-3 py-2 text-[11px] font-mono backdrop-blur-md ring-1 ring-white/10">
           <span>

@@ -1,0 +1,54 @@
+- generic [active]:
+  - main [ref=e1]:
+    - generic [ref=e2]:
+      - generic [ref=e3]:
+        - generic:
+          - generic:
+            - generic:
+              - generic: atelier://office
+              - generic: · 9 leads on duty
+            - generic:
+              - text: "gate: idle · quota:"
+              - generic: 0.0%
+          - generic [ref=e5]:
+            - button "Filter events to Chief" [ref=e6] [cursor=pointer]: Chief
+            - generic [ref=e8]: Chief of Staff
+          - generic [ref=e9]:
+            - button "Filter events to Strategy" [ref=e10] [cursor=pointer]: Strategy
+            - generic [ref=e12]: BizDev Lead
+          - generic [ref=e13]:
+            - button "Filter events to Product" [ref=e14] [cursor=pointer]: Product
+            - generic [ref=e16]: PM Lead
+          - generic [ref=e17]:
+            - button "Filter events to Design" [ref=e18] [cursor=pointer]: Design
+            - generic [ref=e20]: Design Lead
+          - generic [ref=e21]:
+            - button "Filter events to Engineering" [ref=e22] [cursor=pointer]: Engineering
+            - generic [ref=e24]: Eng Manager
+          - generic [ref=e25]:
+            - button "Filter events to QA" [ref=e26] [cursor=pointer]: QA
+            - generic [ref=e28]: QA Lead
+          - generic [ref=e29]:
+            - button "Filter events to Marketing" [ref=e30] [cursor=pointer]: Marketing
+            - generic [ref=e32]: Mkt Lead
+          - generic [ref=e33]:
+            - button "Filter events to Operations" [ref=e34] [cursor=pointer]: Operations
+            - generic [ref=e36]: Ops Lead
+          - generic [ref=e37]:
+            - button "Filter events to Analytics" [ref=e38] [cursor=pointer]: Analytics
+            - generic [ref=e40]: Analytics Lead
+        - generic [ref=e41]: "events received: 0"
+      - complementary [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]: live event log
+          - generic [ref=e45]:
+            - img "activity over last 60s, peak 1" [ref=e46]
+            - generic [ref=e59]: 0 total
+        - log "live event log" [ref=e60]:
+          - generic [ref=e61]:
+            - text: waiting for events…
+            - generic [ref=e62]:
+              - text: runs publish to
+              - code [ref=e63]: runs/events.jsonl
+  - button "Open Next.js Dev Tools" [ref=e69] [cursor=pointer]:
+    - img [ref=e70]

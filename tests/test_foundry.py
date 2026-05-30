@@ -114,6 +114,123 @@ async def test_foundry_hire_falls_back_when_no_llm(
     assert result.origin == "seed"
 
 
+def test_spec_judge_rejects_thin_spec() -> None:
+    from atelier.roles.foundry.spec_judge import judge_role_spec
+
+    thin = RoleSpec(
+        title="Generic Analyst",
+        department="Strategy",
+        seniority="senior",
+        one_liner="Provides domain expertise across topics.",
+        expertise_domains=[
+            "domain expertise",
+            "cross-functional collaboration",
+            "stakeholder synthesis",
+        ],
+        quality_bar=Rubric(criteria=["good", "ok"]),
+        working_style=WorkingStyle(leads_with="document", cadence="weekly"),
+    )
+    verdict = judge_role_spec(thin)
+    assert not verdict.passed
+    assert verdict.score < 0.70
+    assert verdict.issues
+
+
+def test_spec_judge_passes_substantive_spec() -> None:
+    from atelier.roles.foundry.spec import Framework
+    from atelier.roles.foundry.spec_judge import judge_role_spec
+
+    good = RoleSpec(
+        title="Senior UX Researcher",
+        department="Design",
+        seniority="staff",
+        one_liner="Diagnoses interaction-flow gaps before implementation.",
+        expertise_domains=[
+            "task-flow analysis",
+            "WCAG 2.2 audits",
+            "moderated usability testing",
+        ],
+        decision_frameworks=[
+            Framework(name="Jobs-to-be-Done", when_to_apply="scoping new flows"),
+        ],
+        failure_modes=[
+            "over-indexing on edge cases that drown the primary path",
+            "skipping empty/error states in wireframes",
+        ],
+        anti_patterns=["shipping wireframes without keyboard order specified"],
+        quality_bar=Rubric(
+            criteria=[
+                "every state has explicit copy and motion intent",
+                "empty/error/loading states present for every screen",
+            ]
+        ),
+        working_style=WorkingStyle(leads_with="prototype", cadence="weekly"),
+        escalation_triggers=["accessibility violation found in lead-approved memo"],
+    )
+    verdict = judge_role_spec(good)
+    assert verdict.passed
+    assert verdict.score >= 0.70
+
+
+async def test_foundry_retries_on_thin_spec(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from atelier.roles.foundry.spec import Framework
+
+    foundry = Foundry(tmp_path)
+    thin = _minimal_spec(title="Hired Thin", dept="Strategy").model_copy(
+        update={"origin": "hired"}
+    )
+    good = RoleSpec(
+        title="Hired Good",
+        department="Strategy",
+        seniority="senior",
+        one_liner="Pinpoints competitor moves before they hit the market.",
+        expertise_domains=[
+            "competitive intelligence",
+            "market sizing",
+            "go-to-market patterns",
+        ],
+        decision_frameworks=[
+            Framework(name="Porter Five Forces", when_to_apply="entry assessment"),
+        ],
+        failure_modes=[
+            "anchoring on a single competitor narrative",
+            "ignoring substitutes outside the named category",
+        ],
+        anti_patterns=["citing analyst reports without primary signal"],
+        quality_bar=Rubric(
+            criteria=[
+                "every claim cites an observable signal with a date",
+                "trade-offs named with at least one falsifier",
+            ]
+        ),
+        working_style=WorkingStyle(leads_with="analysis", cadence="weekly"),
+        escalation_triggers=["competitor ships before our G4"],
+        origin="hired",
+    )
+    calls: list[str] = []
+
+    async def _attempt(
+        _req: Requisition, prompt: str
+    ) -> tuple[RoleSpec | None, str]:
+        calls.append(prompt)
+        return (thin if len(calls) == 1 else good), "ok"
+
+    monkeypatch.setattr(foundry, "_attempt_hire", _attempt)
+    req = Requisition(
+        gate="G2",
+        issuing_lead="PM Lead",
+        department="Strategy",
+        capability="competitor monitoring for a Plan",
+        deliverable="3-6 bullet competitor critique",
+    )
+    out = await foundry._hire_via_llm(req)
+    assert out is not None
+    assert out.title == "Hired Good"
+    assert len(calls) == 2
+
+
 def test_foundry_persists_hired_specs(tmp_path: Path) -> None:
     foundry = Foundry(tmp_path)
     spec = _minimal_spec()

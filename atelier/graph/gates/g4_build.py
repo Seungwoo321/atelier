@@ -8,6 +8,7 @@ from atelier.graph.gates._llm import call_gate_llm, verify_gate
 from atelier.graph.gates._specialist import lead_revision_after_debate
 from atelier.graph.state import CompanyState
 from atelier.observability.tracer import trace_event
+from atelier.roles.foundry import Foundry, Requisition
 
 ENG_MODEL = "claude-opus-4-7"
 
@@ -23,6 +24,55 @@ _SPECIALISTS = [
         "Surface auth, input-validation, and secret-handling risks.",
     ),
 ]
+
+_REQUISITIONS = [
+    Requisition(
+        gate="G4",
+        issuing_lead="Eng Manager",
+        department="Engineering",
+        capability=(
+            "architecture, test-coverage, and module-boundary critique for a "
+            "first-build Code Review memo"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) naming architectural smells, test "
+            "gaps, and module boundary violations"
+        ),
+        constraints=["call out at least one concrete file or module"],
+    ),
+    Requisition(
+        gate="G4",
+        issuing_lead="Eng Manager",
+        department="Engineering",
+        capability=(
+            "authentication, input-validation, and secret-handling threat "
+            "model for a first-build Code Review memo"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) naming auth risks, missing input "
+            "validation, and secret-handling exposure"
+        ),
+        constraints=["use STRIDE categories where relevant"],
+    ),
+]
+
+
+async def _foundry_pairs(
+    plan: dict[str, object], prd: dict[str, object]
+) -> list[tuple[str, str, str]]:
+    settings = load_settings()
+    foundry = Foundry(settings.runs_dir)
+    title_val = plan.get("title", "")
+    feat_val = prd.get("feature", "")
+    title = title_val if isinstance(title_val, str) else ""
+    feat = feat_val if isinstance(feat_val, str) else ""
+    ctx = f"plan title: {title}; PRD feature: {feat}"
+    pairs: list[tuple[str, str, str]] = []
+    for base in _REQUISITIONS:
+        req = base.model_copy(update={"context_summary": ctx})
+        spec = await foundry.hire(req)
+        pairs.append((spec.title, spec.department, spec.one_liner))
+    return pairs
 
 SYSTEM_PROMPT = (
     "You are the Eng Manager at Atelier, partnering with the Tech Lead and QA "
@@ -80,19 +130,26 @@ async def g4_build(state: CompanyState) -> CompanyState:
     if artifact is None:
         trace_event("g4.build.fallback", reason=reason)
         artifact = _placeholder(feature)
-    elif load_settings().specialist_debate_enabled:
-        artifact = await lead_revision_after_debate(
-            gate="G4",
-            dept="Engineering",
-            lead_role="Eng Manager",
-            model=ENG_MODEL,
-            system=SYSTEM_PROMPT,
-            base_prompt=base_prompt,
-            draft=artifact,
-            artifact_cls=CodeReview,
-            specialists=_SPECIALISTS,
-            max_tokens=1800,
-        )
+    else:
+        settings = load_settings()
+        if settings.specialist_debate_enabled:
+            specialists = (
+                await _foundry_pairs(plan, prd_blob)
+                if settings.foundry_enabled
+                else _SPECIALISTS
+            )
+            artifact = await lead_revision_after_debate(
+                gate="G4",
+                dept="Engineering",
+                lead_role="Eng Manager",
+                model=ENG_MODEL,
+                system=SYSTEM_PROMPT,
+                base_prompt=base_prompt,
+                draft=artifact,
+                artifact_cls=CodeReview,
+                specialists=specialists,
+                max_tokens=1800,
+            )
 
     verify = await verify_gate(gate="G4", dept="Engineering", artifact=artifact)
     if verify.get("scores"):
