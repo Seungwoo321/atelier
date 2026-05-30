@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     council_enabled: bool = False
     role_memory_enabled: bool = True
     role_memory_max_facts: int = Field(default=5, ge=0, le=20)
+    foundry_enabled: bool = False
 
     artifacts_dir: Path = Path("./artifacts")
     inbox_dir: Path = Path("./inbox")

@@ -17,6 +17,7 @@ from atelier.graph.state import CompanyState
 from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
 from atelier.protocols.bounded_debate import _change_rate
+from atelier.roles.foundry import Foundry, Requisition, RoleSpec
 
 DESIGN_MODEL = "claude-opus-4-7"
 
@@ -80,6 +81,55 @@ _SPECIALISTS = [
     ("UI Designer", "Design", "Produce visual mocks and component tokens."),
 ]
 
+_DESIGN_REQUISITIONS = [
+    Requisition(
+        gate="G3",
+        issuing_lead="Design Lead",
+        department="Design",
+        capability=(
+            "interaction design and accessibility critique for the proposed PRD "
+            "and Design Memo, with concrete wireframe-level pushback"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) naming the riskiest interaction gaps, "
+            "missing states, and accessibility blockers before build"
+        ),
+        constraints=["WCAG 2.2 AA", "no new dependencies"],
+    ),
+    Requisition(
+        gate="G3",
+        issuing_lead="Design Lead",
+        department="Design",
+        capability=(
+            "visual hierarchy and design-token critique for the proposed PRD "
+            "and Design Memo, focusing on system-level coherence"
+        ),
+        deliverable=(
+            "short critique (3-6 bullets) naming token gaps, contrast/legibility "
+            "risks, and inconsistencies with the implicit design system"
+        ),
+        constraints=["Tailwind v4 tokens", "dark-mode-ready"],
+    ),
+]
+
+
+async def _foundry_specialists(
+    charter: dict[str, Any], plan: dict[str, Any]
+) -> list[RoleSpec]:
+    settings = load_settings()
+    foundry = Foundry(settings.runs_dir)
+    ctx = (
+        f"charter title: {charter.get('title', '')}; "
+        f"one_liner: {charter.get('one_liner', '')}; "
+        f"target_user: {charter.get('target_user', '')}; "
+        f"plan title: {plan.get('title', '')}"
+    )
+    specs: list[RoleSpec] = []
+    for base in _DESIGN_REQUISITIONS:
+        req = base.model_copy(update={"context_summary": ctx})
+        specs.append(await foundry.hire(req))
+    return specs
+
 
 async def _run_specialist_debate(
     bundle: G3Bundle,
@@ -89,17 +139,31 @@ async def _run_specialist_debate(
     """One round of BoundedDebate: specialists critique, Lead revises."""
     settings = load_settings()
     critiques: list[str] = []
-    for name, dept, mandate in _SPECIALISTS:
-        crit = await specialist_challenge(
-            gate="G3",
-            dept=dept,
-            specialist_name=name,
-            mandate=mandate,
-            artifact_text=bundle.model_dump_json(indent=2),
-            quota_frac=0.005,
-        )
-        if crit:
-            critiques.append(f"## {name}\n{crit}")
+    if settings.foundry_enabled:
+        for spec in await _foundry_specialists(charter, plan):
+            crit = await specialist_challenge(
+                gate="G3",
+                dept=spec.department,
+                specialist_name=spec.title,
+                mandate=spec.one_liner,
+                artifact_text=bundle.model_dump_json(indent=2),
+                quota_frac=0.005,
+                role_spec=spec,
+            )
+            if crit:
+                critiques.append(f"## {spec.title} ({spec.seniority})\n{crit}")
+    else:
+        for name, dept, mandate in _SPECIALISTS:
+            crit = await specialist_challenge(
+                gate="G3",
+                dept=dept,
+                specialist_name=name,
+                mandate=mandate,
+                artifact_text=bundle.model_dump_json(indent=2),
+                quota_frac=0.005,
+            )
+            if crit:
+                critiques.append(f"## {name}\n{crit}")
     if not critiques:
         return bundle
 

@@ -12,6 +12,7 @@ from atelier.config import load_settings
 from atelier.llm.provider import get_provider
 from atelier.observability.tracer import trace_event
 from atelier.protocols.bounded_debate import _change_rate
+from atelier.roles.foundry.spec import RoleSpec
 
 SPECIALIST_MODEL = "claude-sonnet-4-6"
 M = TypeVar("M", bound=BaseModel)
@@ -26,25 +27,35 @@ async def specialist_challenge(
     artifact_text: str,
     quota_frac: float = 0.005,
     max_tokens: int = 600,
+    role_spec: RoleSpec | None = None,
 ) -> str | None:
     """Ask a specialist (Sonnet tier) to challenge a lead's draft.
 
     Returns a short critique string, or None when the provider is
     unavailable or the call errors. Emits quota.charge and a
-    specialist.<gate>.challenge event.
+    specialist.<gate>.challenge event. When `role_spec` is provided the
+    specialist runs under its full system prompt (Foundry path).
     """
     settings = load_settings()
     try:
         provider = get_provider(settings.llm_provider)
         if not await provider.healthcheck():
             return None
-        system = (
-            f"You are the {specialist_name} in the {dept} department at Atelier. "
-            f"Your mandate: {mandate} "
-            "Review the lead's draft and reply with a SHORT critique (3-6 bullets, "
-            "no preamble, no JSON) covering the most consequential gaps, risks, or "
-            "ambiguities you would push back on in a working session."
-        )
+        if role_spec is not None:
+            system = (
+                role_spec.to_system_prompt()
+                + "\n\nReview the lead's draft and reply with a SHORT critique "
+                "(3-6 bullets, no preamble, no JSON) covering the most consequential "
+                "gaps, risks, or ambiguities you would push back on in a working session."
+            )
+        else:
+            system = (
+                f"You are the {specialist_name} in the {dept} department at Atelier. "
+                f"Your mandate: {mandate} "
+                "Review the lead's draft and reply with a SHORT critique (3-6 bullets, "
+                "no preamble, no JSON) covering the most consequential gaps, risks, or "
+                "ambiguities you would push back on in a working session."
+            )
         prompt = "Lead draft:\n" + artifact_text
         resp = await provider.complete(
             system=system,
@@ -70,6 +81,8 @@ async def specialist_challenge(
             dept=dept,
             specialist=specialist_name,
             chars=len(critique),
+            via_spec=role_spec is not None,
+            seniority=role_spec.seniority if role_spec else None,
         )
         return critique
     except Exception as e:  # noqa: BLE001

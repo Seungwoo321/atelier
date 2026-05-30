@@ -34,7 +34,7 @@ Atelier는 소프트웨어 회사를 역할 특화 에이전트의 방향성 그
 
 ## 특징
 
-- **9명의 부서 리드** (Opus 4.7) + **19명의 스페셜리스트** (Sonnet 4.6) — 조합 가능한 `Role` 객체로 정의.
+- **9명의 부서 리드** (Opus 4.7) + **19명의 스페셜리스트** (Sonnet 4.6) — 조합 가능한 `Role` 객체로 정의. **Role Foundry** (R38)가 capability `Requisition`에 대해 타입이 정의된 `RoleSpec`을 동적으로 채용(현재 G3에서 시범 가동). 시드 코퍼스와 채용된 스펙은 `runs/memory/org/role_corpus.json`에 캐시.
 - **5개의 전략 게이트**를 LangGraph로 배선, 선택적 SQLite 체크포인팅 지원.
 - **4개의 의사결정 프로토콜, 모두 런타임에 결선** — Reflexion 재시도(게이트별, 상한, 비판이 다음 시도 프롬프트에 주입), G2/G3/G4 Bounded Debate(UX+UI / PM Specialist+Market Researcher / Tech Lead+Security가 리드에 도전), 실행 종료 Cross-Dept Council(5인 리드 투표, PM Lead 결정투표), 실행 종료 Janitor Memo(`runs/`에 보존).
 - **4단계 검증** — Schema(Pydantic) → Critic(결정론) → Judge(LLM 루브릭) → Guardrails(PII/시크릿).
@@ -105,6 +105,7 @@ CLI 데모:
 | `ATELIER_COUNCIL_ENABLED` | `false` | 실행 종료 시 부서 간 의회 표결 |
 | `ATELIER_ROLE_MEMORY_ENABLED` | `true` | 각 리드의 이전 실행 사실을 게이트 프롬프트에 주입 |
 | `ATELIER_ROLE_MEMORY_MAX_FACTS` | `5` | 역할당 포함할 최신 사실 개수 (0–20) |
+| `ATELIER_FOUNDRY_ENABLED` | `false` | G3 스페셜리스트 좌석을 capability Requisition으로 발행해 Role Foundry(캐시 + Talent Lead 채용)로 채움 |
 
 선택적 통합: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 

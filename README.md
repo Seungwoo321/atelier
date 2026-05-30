@@ -34,7 +34,7 @@ All callers depend on a single `LLMProvider` Protocol — these two are the only
 
 ## Features
 
-- **9 department leads** (Opus 4.7) + **19 specialists** (Sonnet 4.6), defined as composable `Role` objects.
+- **9 department leads** (Opus 4.7) + **19 specialists** (Sonnet 4.6), defined as composable `Role` objects, with a **Role Foundry** (R38) that dynamically hires typed `RoleSpec` instances against capability `Requisition`s — pilot live in G3, seed corpus and hired specs cached under `runs/memory/org/role_corpus.json`.
 - **5 strategic gates** wired as a LangGraph with optional SQLite checkpointing.
 - **4 decision protocols, all wired into the runtime** — Reflexion retries (per-gate, capped, critique injected into the next attempt), Bounded Debate in G2/G3/G4 (UX+UI / PM Specialist+Market Researcher / Tech Lead+Security challenge the lead), end-of-run Cross-Dept Council (5 leads vote, PM Lead tie-break), per-run Janitor Memo persisted to `runs/`.
 - **4-stage verification** — Schema (Pydantic) → Critic (deterministic) → Judge (LLM rubric) → Guardrails (PII/secrets).
@@ -105,6 +105,7 @@ Copy `.env.example` to `.env` and adjust:
 | `ATELIER_COUNCIL_ENABLED` | `false` | End-of-run Cross-Dept Council vote on launch readiness |
 | `ATELIER_ROLE_MEMORY_ENABLED` | `true` | Inject each lead's prior-run facts into their gate prompt |
 | `ATELIER_ROLE_MEMORY_MAX_FACTS` | `5` | Most-recent facts per role to include (0–20) |
+| `ATELIER_FOUNDRY_ENABLED` | `false` | Issue G3 specialist seats as capability Requisitions through the Role Foundry (cache + Talent Lead hire) instead of fixed seats |
 
 Optional integrations: `LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`, `TEMPORAL_HOST`, `E2B_API_KEY`.
 
