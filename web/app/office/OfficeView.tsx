@@ -56,7 +56,7 @@ export default function OfficeView() {
     (async () => {
       await app.init({
         width: 960,
-        height: 540,
+        height: 600,
         backgroundColor: 0x141420,
         antialias: false,
       });
@@ -295,8 +295,8 @@ export default function OfficeView() {
   return (
     <div className="grid grid-cols-1 gap-3 items-start lg:grid-cols-[1fr_280px]">
       <div className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 relative">
-        <div ref={stageRef} style={{ aspectRatio: "960 / 540" }} />
-        <div className="pointer-events-none absolute inset-0" style={{ aspectRatio: "960 / 540" }}>
+        <div ref={stageRef} style={{ aspectRatio: "960 / 600" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ aspectRatio: "960 / 600" }}>
           <div className="absolute left-3 right-3 top-2 flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
@@ -329,7 +329,7 @@ export default function OfficeView() {
                 className="absolute hidden md:block text-[10px] leading-tight font-medium text-center pointer-events-auto"
                 style={{
                   left: `${((l.x - 28) / 960) * 100}%`,
-                  top: `${((l.y + 108) / 540) * 100}%`,
+                  top: `${((l.y + 108) / 600) * 100}%`,
                   width: `${(120 / 960) * 100}%`,
                 }}
               >
@@ -389,7 +389,7 @@ export default function OfficeView() {
               className="absolute hidden md:block rounded-md bg-cyan-500/15 ring-1 ring-cyan-400/40 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-cyan-100 shadow-[0_2px_8px_rgba(34,211,238,0.25)]"
               style={{
                 right: `${(80 / 960) * 100}%`,
-                top: `${(90 / 540) * 100}%`,
+                top: `${(90 / 600) * 100}%`,
                 maxWidth: 220,
               }}
             >

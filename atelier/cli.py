@@ -25,9 +25,11 @@ app = typer.Typer(
 auth_app = typer.Typer(help="Subscription auth (Claude Code SDK OAuth).")
 inbox_app = typer.Typer(help="Inbox operations.")
 mcp_app = typer.Typer(help="MCP server registry.")
+foundry_app = typer.Typer(help="Role Foundry — inspect cached RoleSpecs.")
 app.add_typer(auth_app, name="auth")
 app.add_typer(inbox_app, name="inbox")
 app.add_typer(mcp_app, name="mcp")
+app.add_typer(foundry_app, name="foundry")
 
 console = Console()
 
@@ -126,6 +128,51 @@ def mcp_list(department: str | None = typer.Option(None)) -> None:
     console.print(table)
 
 
+@foundry_app.command("list")
+def foundry_list(
+    department: str | None = typer.Option(None, help="Filter by department."),
+    show_hired_only: bool = typer.Option(False, "--hired-only", help="Hide seed corpus."),
+) -> None:
+    """List RoleSpec entries currently in the Foundry corpus."""
+    from atelier.roles.foundry import Foundry
+
+    settings = load_settings()
+    foundry = Foundry(settings.runs_dir)
+    rows = list(foundry._corpus.values())
+    if department:
+        rows = [r for r in rows if r.department == department]
+    if show_hired_only:
+        rows = [r for r in rows if r.origin == "hired"]
+    if not rows:
+        console.print("[dim]no role specs match[/dim]")
+        return
+    table = Table("title", "dept", "seniority", "origin", "expertise")
+    for r in sorted(rows, key=lambda s: (s.department, s.title)):
+        table.add_row(
+            r.title,
+            r.department,
+            r.seniority,
+            r.origin,
+            ", ".join(r.expertise_domains[:3]),
+        )
+    console.print(table)
+
+
+@foundry_app.command("show")
+def foundry_show(title: str, department: str | None = typer.Option(None)) -> None:
+    """Print a single RoleSpec's composed system prompt."""
+    from atelier.roles.foundry import Foundry
+
+    settings = load_settings()
+    foundry = Foundry(settings.runs_dir)
+    for spec in foundry._corpus.values():
+        if spec.title == title and (department is None or spec.department == department):
+            console.print(spec.to_system_prompt())
+            return
+    console.print(f"[red]no spec[/red] titled '{title}'")
+    raise typer.Exit(code=1)
+
+
 @app.command()
 def result(project_id: str = "default") -> None:
     """Print the result.json of a previous run."""
@@ -134,4 +181,4 @@ def result(project_id: str = "default") -> None:
     if not p.exists():
         console.print(f"[dim]no result at {p}[/dim]")
         raise typer.Exit(code=1)
-    console.print_json(json.loads(p.read_text(encoding="utf-8")))
+    console.print_json(data=json.loads(p.read_text(encoding="utf-8")))

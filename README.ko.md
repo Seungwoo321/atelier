@@ -13,7 +13,7 @@
 
 </div>
 
-![Atelier 라이브 오피스 — 9명의 부서 리드, SSE 기반 활동, 회의실 러그 위의 Cross-Dept Council 배지](docs/r38-office.png)
+![Atelier 라이브 오피스 — 9명의 부서 리드, SSE 기반 활동, 회의실 러그 위의 Cross-Dept Council 배지](docs/r39-office.png)
 
 > **라이브 액션** — SSE 스트림으로 이벤트가 도착하면 Chief of Staff에서 각 부서 리드로 파티클 트레일이 발사됩니다:
 >
@@ -182,8 +182,8 @@ pnpm dev
 | 경로 | 미리보기 |
 | --- | --- |
 | `/` — 랜딩 | ![](docs/r9-landing.png) |
-| `/office` — 라이브 오피스 | ![](docs/r38-office.png) |
-| `/dashboard` — 실행 요약 | ![](docs/r38-dashboard.png) |
+| `/office` — 라이브 오피스 | ![](docs/r39-office.png) |
+| `/dashboard` — 실행 요약 | ![](docs/r39-dashboard.png) |
 
 
 첫 실행 전에 오피스/대시보드를 채워보고 싶다면 샘플 데이터를 시드하세요:
